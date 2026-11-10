@@ -58,6 +58,8 @@ robocopy "%YEDO%" "%PROJ%\src\main\assets\defaults" /MIR /NFL /NDL /NJH /NJS /NP
   /XD pics _android _update replay screenshots "Claude outputs" .git ^
   /XF *.exe *.dll *.pdb *.config *.bat *.lnk *.old system.conf error.log .edopro_lock save.json progress.json _story_boss.ydk >>"%LOG%" 2>&1
 if %ERRORLEVEL% GEQ 8 goto :fail
+powershell -NoProfile -ExecutionPolicy Bypass -File "%HERE%make-filelist.ps1" -Assets "%PROJ%\src\main\assets" >>"%LOG%" 2>&1 || goto :fail
+if not exist "%PROJ%\src\main\assets\filelist.txt" goto :fail
 
 rem ---- 5. native code
 echo  [5/6] Compiling the game for Android (10-30 minutes the first time)...
