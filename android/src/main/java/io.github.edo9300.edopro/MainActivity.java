@@ -550,6 +550,11 @@ public class MainActivity extends Activity {
 			}
 		}
 		copyCertificate();
+		// YEdo Mod Pro: the game data must be copied on first start, so never ask
+		if (true) {
+			copyAssets(working_dir, false);
+			return;
+		}
 		new AlertDialog.Builder(this)
 				.setMessage(getResources().getString(R.string.assets_prompt))
 				.setNegativeButton("No", (dialog, id) -> {
