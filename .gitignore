@@ -1,4 +1,4 @@
-*.exe
+windows/**/*.exe
 *.apk
 *.o
 build/

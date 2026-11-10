@@ -15,9 +15,8 @@
 
 ## ไฟล์พร้อมเล่น
 
-ดูที่หน้า **Releases** ของ repo นี้:
-- `YEdo-Mod-Pro.exe` — ตัวเกม Windows (ใช้แทน exe ในโฟลเดอร์เกม EDOPro / YEdo Mod Pro เดิม แล้วใส่โฟลเดอร์ `data/` ลงไป)
-- `YEdo-Mod-Pro.apk` — ตัวติดตั้ง Android
+- **Windows:** โฟลเดอร์ [`release/`](release) — `YEdo-Mod-Pro.exe` (วางแทน exe ในโฟลเดอร์เกม EDOPro / YEdo Mod Pro) + `YEdo-Mod-Pro-data.zip` (แตกไฟล์ลงโฟลเดอร์เกม)
+- **Android:** `YEdo-Mod-Pro.apk` ที่หน้า **Releases** ของ repo นี้ (ไฟล์ใหญ่เกิน 100 MB จึงใส่ใน repo ตรง ๆ ไม่ได้)
 
 ## สร้างเอง
 
