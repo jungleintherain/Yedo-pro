@@ -1,0 +1,166 @@
+{
+ "_comment": "แคมเปญ Rank Challenge 10 รอบ: pool = รายชื่อบอท WindBot (ชื่อตาม WindBot/bots.json), skill = สกิลบอส, deck_file = (ไม่บังคับ) ไฟล์ .ydk เด็คเมต้าที่ต้องการให้บอสใช้แทนเด็คประจำตัว (วางไฟล์ไว้ในโฟลเดอร์นี้)",
+ "lives": 3,
+ "free_deck_reward_percent": 30,
+ "rounds": [
+  {
+   "rank": "Rookie I",
+   "color": "#a7b0bf",
+   "pool": "rookie",
+   "gold": 300,
+   "gems": 10
+  },
+  {
+   "rank": "Rookie II",
+   "color": "#a7b0bf",
+   "pool": "rookie",
+   "gold": 400,
+   "gems": 15
+  },
+  {
+   "rank": "Bronze",
+   "color": "#cd7f32",
+   "pool": "bronze",
+   "gold": 500,
+   "gems": 20
+  },
+  {
+   "rank": "Silver",
+   "color": "#c0c8d8",
+   "pool": "silver",
+   "gold": 600,
+   "gems": 25
+  },
+  {
+   "rank": "Gold",
+   "color": "#f5c542",
+   "pool": "gold",
+   "gold": 800,
+   "gems": 30,
+   "card": "SR"
+  },
+  {
+   "rank": "Platinum",
+   "color": "#7fe0d6",
+   "pool": "platinum",
+   "gold": 1000,
+   "gems": 40
+  },
+  {
+   "rank": "Diamond",
+   "color": "#8fb4ff",
+   "pool": "diamond",
+   "gold": 1200,
+   "gems": 50,
+   "card": "SR"
+  },
+  {
+   "rank": "Master",
+   "color": "#d18bff",
+   "pool": "diamond",
+   "gold": 1500,
+   "gems": 60
+  },
+  {
+   "rank": "BOSS: Champion",
+   "color": "#ff5a5a",
+   "pool": "boss",
+   "boss": true,
+   "skill": 300990002,
+   "portrait": "boss.png",
+   "gold": 3000,
+   "gems": 200,
+   "card": "SR",
+   "skill_label": "สกิลบอส: LP +6000 และเริ่มดวลด้วยการ์ดในมือ +1"
+  },
+  {
+   "rank": "FINAL BOSS: King of Games",
+   "color": "#ffd700",
+   "pool": "final",
+   "boss": true,
+   "skill": 300990003,
+   "portrait": "final_boss.png",
+   "gold": 6000,
+   "gems": 600,
+   "card": "UR",
+   "skill_label": "สกิลบอสใหญ่: LP +8000, การ์ดในมือ +1 และฟื้น LP 1000 ทุก Standby Phase"
+  }
+ ],
+ "pools": {
+  "rookie": [
+   "Burn",
+   "Frog",
+   "Horus",
+   "Normal Monster Mash",
+   "Normal Monster Mash II",
+   "Yosenju",
+   "Windwitch Gusto",
+   "Familiar Possessed",
+   "Qliphort",
+   "Phantasm"
+  ],
+  "bronze": [
+   "Dragunity",
+   "Rainbow",
+   "Toadally Awesome",
+   "ZEXAL Weapon",
+   "Time Thief",
+   "Cyberse",
+   "R5NK",
+   "Rose Scrap Synchro",
+   "Chain Burn"
+  ],
+  "silver": [
+   "Blue-Eyes",
+   "Blue-Eyes Ritual",
+   "Thunder Dragon",
+   "Mathmech",
+   "Gren Maju Stun",
+   "Apophis",
+   "Zoodiac"
+  ],
+  "gold": [
+   "ABC-Dragon Buster",
+   "Altergeist",
+   "Dark Magician",
+   "Dragun of Red-Eyes",
+   "Trickstar",
+   "Salamangreat",
+   "Sky Striker",
+   "Zefra"
+  ],
+  "platinum": [
+   "Orcust",
+   "Witchcrafter Grass",
+   "Superheavy Samurai",
+   "Lightsworn Shaddoll Dino",
+   "Adventurer",
+   "Dogmatika",
+   "Invoked Dogmatika",
+   "Tearlaments"
+  ],
+  "diamond": [
+   "Branded",
+   "Exosister",
+   "Kashtira",
+   "Labrynth",
+   "Swordsoul",
+   "Yubel",
+   "Sacred Beast"
+  ],
+  "boss": [
+   "Ryzeal",
+   "Maliss",
+   "Blue-Eyes 2025",
+   "Kashtira"
+  ],
+  "final": [
+   "Yummy",
+   "Ryzeal",
+   "Maliss"
+  ]
+ },
+ "boss_overrides": {
+  "_comment": "ใส่ชื่อบอท: ไฟล์เด็ค เช่น \"Ryzeal\": \"ryzeal_meta.ydk\" เพื่อให้บอสใช้เด็คนั้น (บอทยังใช้สมอง Ryzeal เดิม)"
+ }
+}

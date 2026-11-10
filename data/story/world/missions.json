@@ -1,0 +1,647 @@
+{
+ "_comment": "ภารกิจแบบ Duel Links: stat = duel_play, duel_win, story_win, roaming_win, campaign_win, campaign_boss, campaign_clear, summon, summon_special, summon_extra, summon_synchro/xyz/fusion/link/ritual/pendulum, sp_<รหัสการ์ด>, damage, skill_use, pack_open, structure_buy, cards_owned, story_clear",
+ "daily": [
+  {
+   "id": "d_play3",
+   "name": "ดวล 3 ครั้ง",
+   "desc": "ดวลโหมดไหนก็ได้ (ยกเว้น Sandbox)",
+   "stat": "duel_play",
+   "target": 3,
+   "gems": 30,
+   "gold": 0
+  },
+  {
+   "id": "d_win1",
+   "name": "ชนะการดวล 1 ครั้ง",
+   "desc": "",
+   "stat": "duel_win",
+   "target": 1,
+   "gems": 30,
+   "gold": 0
+  },
+  {
+   "id": "d_win3",
+   "name": "ชนะการดวล 3 ครั้ง",
+   "desc": "",
+   "stat": "duel_win",
+   "target": 3,
+   "gems": 50,
+   "gold": 500
+  },
+  {
+   "id": "d_extra3",
+   "name": "ซัมมอนจาก Extra Deck 3 ครั้ง",
+   "desc": "ฟิวชั่น / ซิงโคร / เอ็กซ์ซีส์ / ลิงก์ ก็ได้",
+   "stat": "summon_extra",
+   "target": 3,
+   "gems": 30,
+   "gold": 0
+  },
+  {
+   "id": "d_summon10",
+   "name": "ซัมมอนมอนสเตอร์ 10 ครั้ง",
+   "desc": "",
+   "stat": "summon",
+   "target": 10,
+   "gems": 0,
+   "gold": 400
+  },
+  {
+   "id": "d_damage",
+   "name": "สร้างดาเมจรวม 8,000",
+   "desc": "",
+   "stat": "damage",
+   "target": 8000,
+   "gems": 30,
+   "gold": 0
+  },
+  {
+   "id": "d_skill",
+   "name": "ใช้สกิล 1 ครั้ง",
+   "desc": "ติดตั้งสกิลในแท็บ \"สกิล\" แล้วกดการ์ดสกิลบนสนาม",
+   "stat": "skill_use",
+   "target": 1,
+   "gems": 20,
+   "gold": 0
+  },
+  {
+   "id": "d_pack",
+   "name": "เปิดซองการ์ด 1 ซอง",
+   "desc": "ซองฟรีประจำวันก็นับ",
+   "stat": "pack_open",
+   "target": 1,
+   "gems": 0,
+   "gold": 300
+  },
+  {
+   "id": "d_roam",
+   "name": "ชนะนักสู้สุ่ม 1 ครั้ง",
+   "desc": "",
+   "stat": "roaming_win",
+   "target": 1,
+   "gems": 0,
+   "gold": 0,
+   "item": "trader_refresh"
+  },
+  {
+   "id": "d_campaign",
+   "name": "ชนะการดวลในแคมเปญ 1 ครั้ง",
+   "desc": "",
+   "stat": "campaign_win",
+   "target": 1,
+   "gems": 40,
+   "gold": 0
+  },
+  {
+   "id": "d_ranked2",
+   "name": "ชนะ Ranked 2 ครั้ง",
+   "desc": "แท็บ Ranked ใน Duel World",
+   "stat": "ranked_win",
+   "target": 2,
+   "gems": 40,
+   "gold": 0
+  },
+  {
+   "id": "d_gate1",
+   "name": "ชนะ Gate 1 ครั้ง",
+   "desc": "แท็บ Gate ใน Duel World",
+   "stat": "gate_win",
+   "target": 1,
+   "gems": 30,
+   "gold": 300
+  }
+ ],
+ "achievements": [
+  {
+   "id": "sk_yusei",
+   "name": "ยูเซย์: ซัมมอน Stardust Dragon 5 ครั้ง",
+   "desc": "ปลดล็อกสกิลตำนาน \"พันธะแห่งดวงดาวที่มาบรรจบ\" (Bonds of the Converging Stars)",
+   "stat": "sp_44508094",
+   "target": 5,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990010
+  },
+  {
+   "id": "sk_kaiba",
+   "name": "ไคบะ: ซัมมอน Blue-Eyes White Dragon 10 ครั้ง",
+   "desc": "ปลดล็อกสกิลตำนาน \"ราชันมังกรตาสีน้ำเงิน\"",
+   "stat": "sp_89631139",
+   "target": 10,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990012
+  },
+  {
+   "id": "sk_yugi",
+   "name": "ยูกิ: ซัมมอน Dark Magician 10 ครั้ง",
+   "desc": "ปลดล็อกสกิลตำนาน \"โชคชะตาแห่งฟาโรห์\"",
+   "stat": "sp_46986414",
+   "target": 10,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990011
+  },
+  {
+   "id": "sk_jack",
+   "name": "แจ็ค: ซัมมอน Red Dragon Archfiend 5 ครั้ง",
+   "desc": "ปลดล็อกสกิลตำนาน \"วิญญาณร้อนแรงแห่งราชา\"",
+   "stat": "sp_70902743",
+   "target": 5,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990014
+  },
+  {
+   "id": "sk_jaden",
+   "name": "จูได: ฟิวชั่นซัมมอน 20 ครั้ง",
+   "desc": "ปลดล็อกสกิลตำนาน \"สายสัมพันธ์ฮีโร่\"",
+   "stat": "summon_fusion",
+   "target": 20,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990013
+  },
+  {
+   "id": "sk_yuma",
+   "name": "ยูมะ: เอ็กซ์ซีส์ซัมมอน 20 ครั้ง",
+   "desc": "ปลดล็อกสกิลตำนาน \"ความหวังแห่งแรงก์อัป\"",
+   "stat": "summon_xyz",
+   "target": 20,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990019
+  },
+  {
+   "id": "sk_yuya",
+   "name": "ยูยะ: ซัมมอนมอนสเตอร์เพนดูลัม 20 ครั้ง",
+   "desc": "ปลดล็อกสกิลตำนาน \"มิติเพนดูลัม\"",
+   "stat": "summon_pendulum",
+   "target": 20,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990020
+  },
+  {
+   "id": "sk_playmaker",
+   "name": "เพลย์เมกเกอร์: ลิงก์ซัมมอน 20 ครั้ง",
+   "desc": "ปลดล็อกสกิลตำนาน \"สตอร์มแอคเซส\"",
+   "stat": "summon_link",
+   "target": 20,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990021
+  },
+  {
+   "id": "sk_hope",
+   "name": "ชนะการดวล 50 ครั้ง",
+   "desc": "ปลดล็อกสกิลโกง \"ความหวังล้นเหลือ\" (+2 การ์ด +2000 LP)",
+   "stat": "duel_win",
+   "target": 50,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990015
+  },
+  {
+   "id": "sk_revival",
+   "name": "ผ่านเนื้อเรื่อง 15 บท",
+   "desc": "ปลดล็อกสกิลโกง \"ปลุกวิญญาณ\"",
+   "stat": "story_clear",
+   "target": 15,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990017
+  },
+  {
+   "id": "sk_thunder",
+   "name": "เคลียร์แคมเปญ 1 ครั้ง",
+   "desc": "ปลดล็อกสกิลโกง \"สายฟ้าพิพากษา\"",
+   "stat": "campaign_clear",
+   "target": 1,
+   "gems": 500,
+   "gold": 0,
+   "skill": 300990018
+  },
+  {
+   "id": "sk_reversal",
+   "name": "ใช้สกิล 30 ครั้ง",
+   "desc": "ปลดล็อกสกิลโกง \"พลิกฟ้าคว่ำดิน\"",
+   "stat": "skill_use",
+   "target": 30,
+   "gems": 0,
+   "gold": 0,
+   "skill": 300990016
+  },
+  {
+   "id": "win5",
+   "name": "ชนะการดวล 5 ครั้ง",
+   "desc": "",
+   "stat": "duel_win",
+   "target": 5,
+   "gems": 100,
+   "gold": 0
+  },
+  {
+   "id": "win20",
+   "name": "ชนะการดวล 20 ครั้ง",
+   "desc": "",
+   "stat": "duel_win",
+   "target": 20,
+   "gems": 200,
+   "gold": 0
+  },
+  {
+   "id": "win100",
+   "name": "ชนะการดวล 100 ครั้ง",
+   "desc": "",
+   "stat": "duel_win",
+   "target": 100,
+   "gems": 600,
+   "gold": 0
+  },
+  {
+   "id": "win250",
+   "name": "ชนะการดวล 250 ครั้ง",
+   "desc": "",
+   "stat": "duel_win",
+   "target": 250,
+   "gems": 1500,
+   "gold": 0
+  },
+  {
+   "id": "play10",
+   "name": "ดวล 10 ครั้ง",
+   "desc": "",
+   "stat": "duel_play",
+   "target": 10,
+   "gems": 0,
+   "gold": 1000
+  },
+  {
+   "id": "play50",
+   "name": "ดวล 50 ครั้ง",
+   "desc": "",
+   "stat": "duel_play",
+   "target": 50,
+   "gems": 0,
+   "gold": 3000
+  },
+  {
+   "id": "play200",
+   "name": "ดวล 200 ครั้ง",
+   "desc": "",
+   "stat": "duel_play",
+   "target": 200,
+   "gems": 0,
+   "gold": 10000
+  },
+  {
+   "id": "story5",
+   "name": "ผ่านเนื้อเรื่อง 5 บท",
+   "desc": "",
+   "stat": "story_clear",
+   "target": 5,
+   "gems": 150,
+   "gold": 0
+  },
+  {
+   "id": "story10",
+   "name": "ผ่านเนื้อเรื่อง 10 บท",
+   "desc": "",
+   "stat": "story_clear",
+   "target": 10,
+   "gems": 300,
+   "gold": 0
+  },
+  {
+   "id": "story25",
+   "name": "ผ่านเนื้อเรื่อง 25 บท",
+   "desc": "",
+   "stat": "story_clear",
+   "target": 25,
+   "gems": 800,
+   "gold": 0
+  },
+  {
+   "id": "summon_synchro10",
+   "name": "ซิงโครซัมมอน 10 ครั้ง",
+   "desc": "",
+   "stat": "summon_synchro",
+   "target": 10,
+   "gems": 100,
+   "gold": 0
+  },
+  {
+   "id": "summon_synchro50",
+   "name": "ซิงโครซัมมอน 50 ครั้ง",
+   "desc": "",
+   "stat": "summon_synchro",
+   "target": 50,
+   "gems": 300,
+   "gold": 0,
+   "item": "ticket_staples",
+   "item_n": 1
+  },
+  {
+   "id": "summon_xyz10",
+   "name": "เอ็กซ์ซีส์ซัมมอน 10 ครั้ง",
+   "desc": "",
+   "stat": "summon_xyz",
+   "target": 10,
+   "gems": 100,
+   "gold": 0
+  },
+  {
+   "id": "summon_xyz50",
+   "name": "เอ็กซ์ซีส์ซัมมอน 50 ครั้ง",
+   "desc": "",
+   "stat": "summon_xyz",
+   "target": 50,
+   "gems": 300,
+   "gold": 0,
+   "item": "ticket_staples",
+   "item_n": 1
+  },
+  {
+   "id": "summon_fusion10",
+   "name": "ฟิวชั่นซัมมอน 10 ครั้ง",
+   "desc": "",
+   "stat": "summon_fusion",
+   "target": 10,
+   "gems": 100,
+   "gold": 0
+  },
+  {
+   "id": "summon_fusion50",
+   "name": "ฟิวชั่นซัมมอน 50 ครั้ง",
+   "desc": "",
+   "stat": "summon_fusion",
+   "target": 50,
+   "gems": 300,
+   "gold": 0,
+   "item": "ticket_staples",
+   "item_n": 1
+  },
+  {
+   "id": "summon_link10",
+   "name": "ลิงก์ซัมมอน 10 ครั้ง",
+   "desc": "",
+   "stat": "summon_link",
+   "target": 10,
+   "gems": 100,
+   "gold": 0
+  },
+  {
+   "id": "summon_link50",
+   "name": "ลิงก์ซัมมอน 50 ครั้ง",
+   "desc": "",
+   "stat": "summon_link",
+   "target": 50,
+   "gems": 300,
+   "gold": 0,
+   "item": "ticket_staples",
+   "item_n": 1
+  },
+  {
+   "id": "summon_ritual10",
+   "name": "ริทชวลซัมมอน 10 ครั้ง",
+   "desc": "",
+   "stat": "summon_ritual",
+   "target": 10,
+   "gems": 100,
+   "gold": 0
+  },
+  {
+   "id": "summon_ritual50",
+   "name": "ริทชวลซัมมอน 50 ครั้ง",
+   "desc": "",
+   "stat": "summon_ritual",
+   "target": 50,
+   "gems": 300,
+   "gold": 0,
+   "item": "ticket_staples",
+   "item_n": 1
+  },
+  {
+   "id": "dmg20000",
+   "name": "สร้างดาเมจรวม 20,000",
+   "desc": "",
+   "stat": "damage",
+   "target": 20000,
+   "gems": 100,
+   "gold": 0
+  },
+  {
+   "id": "dmg100000",
+   "name": "สร้างดาเมจรวม 100,000",
+   "desc": "",
+   "stat": "damage",
+   "target": 100000,
+   "gems": 400,
+   "gold": 0
+  },
+  {
+   "id": "dmg500000",
+   "name": "สร้างดาเมจรวม 500,000",
+   "desc": "",
+   "stat": "damage",
+   "target": 500000,
+   "gems": 1200,
+   "gold": 0
+  },
+  {
+   "id": "pack10",
+   "name": "เปิดซองการ์ด 10 ซอง",
+   "desc": "",
+   "stat": "pack_open",
+   "target": 10,
+   "gems": 100,
+   "gold": 0
+  },
+  {
+   "id": "pack50",
+   "name": "เปิดซองการ์ด 50 ซอง",
+   "desc": "",
+   "stat": "pack_open",
+   "target": 50,
+   "gems": 400,
+   "gold": 0
+  },
+  {
+   "id": "pack150",
+   "name": "เปิดซองการ์ด 150 ซอง",
+   "desc": "",
+   "stat": "pack_open",
+   "target": 150,
+   "gems": 1000,
+   "gold": 0
+  },
+  {
+   "id": "struct1",
+   "name": "ซื้อ Structure Deck ครั้งแรก",
+   "desc": "",
+   "stat": "structure_buy",
+   "target": 1,
+   "gems": 200,
+   "gold": 0
+  },
+  {
+   "id": "cards200",
+   "name": "สะสมการ์ด 200 แบบ",
+   "desc": "",
+   "stat": "cards_owned",
+   "target": 200,
+   "gems": 100,
+   "gold": 0
+  },
+  {
+   "id": "cards500",
+   "name": "สะสมการ์ด 500 แบบ",
+   "desc": "",
+   "stat": "cards_owned",
+   "target": 500,
+   "gems": 300,
+   "gold": 0
+  },
+  {
+   "id": "cards1000",
+   "name": "สะสมการ์ด 1000 แบบ",
+   "desc": "",
+   "stat": "cards_owned",
+   "target": 1000,
+   "gems": 700,
+   "gold": 0
+  },
+  {
+   "id": "cards2000",
+   "name": "สะสมการ์ด 2000 แบบ",
+   "desc": "",
+   "stat": "cards_owned",
+   "target": 2000,
+   "gems": 1500,
+   "gold": 0
+  },
+  {
+   "id": "camp5",
+   "name": "ชนะการดวลในแคมเปญ 5 ครั้ง",
+   "desc": "",
+   "stat": "campaign_win",
+   "target": 5,
+   "gems": 150,
+   "gold": 0
+  },
+  {
+   "id": "camp30",
+   "name": "ชนะการดวลในแคมเปญ 30 ครั้ง",
+   "desc": "",
+   "stat": "campaign_win",
+   "target": 30,
+   "gems": 600,
+   "gold": 0
+  },
+  {
+   "id": "boss1",
+   "name": "ล้มบอสแคมเปญ 1 ครั้ง",
+   "desc": "รางวัล: เทพ Slifer the Sky Dragon",
+   "stat": "campaign_boss",
+   "target": 1,
+   "gems": 300,
+   "gold": 0,
+   "card": 10000020
+  },
+  {
+   "id": "clear3",
+   "name": "เคลียร์แคมเปญ 3 ครั้ง",
+   "desc": "รางวัล: เทพ Obelisk the Tormentor",
+   "stat": "campaign_clear",
+   "target": 3,
+   "gems": 1500,
+   "gold": 0,
+   "card": 10000000
+  },
+  {
+   "id": "roam10",
+   "name": "ชนะนักสู้สุ่ม 10 ครั้ง",
+   "desc": "",
+   "stat": "roaming_win",
+   "target": 10,
+   "gems": 0,
+   "gold": 0,
+   "item": "duelist_call",
+   "item_n": 3
+  },
+  {
+   "id": "roam50",
+   "name": "ชนะนักสู้สุ่ม 50 ครั้ง",
+   "desc": "",
+   "stat": "roaming_win",
+   "target": 50,
+   "gems": 500,
+   "gold": 0
+  },
+  {
+   "id": "skill10",
+   "name": "ใช้สกิล 10 ครั้ง",
+   "desc": "",
+   "stat": "skill_use",
+   "target": 10,
+   "gems": 150,
+   "gold": 0
+  },
+  {
+   "id": "rank_tier1",
+   "name": "เลื่อนระดับ Ranked 1 ครั้ง",
+   "desc": "",
+   "stat": "rank_tier_up",
+   "target": 1,
+   "gems": 200,
+   "gold": 0
+  },
+  {
+   "id": "rank_tier3",
+   "name": "เลื่อนระดับ Ranked 3 ครั้ง",
+   "desc": "",
+   "stat": "rank_tier_up",
+   "target": 3,
+   "gems": 600,
+   "gold": 0
+  },
+  {
+   "id": "rank_tier6",
+   "name": "ถึง King of Games (เลื่อนระดับ 6 ครั้ง)",
+   "desc": "รางวัล: เทพ Ra",
+   "stat": "rank_tier_up",
+   "target": 6,
+   "gems": 2000,
+   "gold": 0,
+   "card": 10000010
+  },
+  {
+   "id": "gate10",
+   "name": "ชนะ Gate 10 ครั้ง",
+   "desc": "",
+   "stat": "gate_win",
+   "target": 10,
+   "gems": 200,
+   "gold": 0
+  },
+  {
+   "id": "gate50",
+   "name": "ชนะ Gate 50 ครั้ง",
+   "desc": "",
+   "stat": "gate_win",
+   "target": 50,
+   "gems": 800,
+   "gold": 0
+  },
+  {
+   "id": "ranked20",
+   "name": "ชนะ Ranked 20 ครั้ง",
+   "desc": "",
+   "stat": "ranked_win",
+   "target": 20,
+   "gems": 500,
+   "gold": 0
+  }
+ ]
+}

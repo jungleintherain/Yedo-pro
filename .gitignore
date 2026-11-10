@@ -1,0 +1,6 @@
+*.exe
+*.apk
+*.o
+build/
+bin/
+obj/

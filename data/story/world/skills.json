@@ -1,0 +1,335 @@
+{
+ "_comment": "สกิลแบบ Duel Links: code = รหัสการ์ดสกิลของ EDOPro (script/skill), price = ราคาเพชร, owned = ได้ฟรีตั้งแต่เริ่ม",
+ "skills": [
+  {
+   "code": 300104005,
+   "name_en": "Switcheroo",
+   "name": "สลับมือ",
+   "desc": "ช่วง Main Phase: สับการ์ดในมือ 1 ใบกลับเด็ค แล้วจั่ว 1 ใบ (เทิร์นละครั้ง ใช้ได้ 2 ครั้งต่อดวล)",
+   "for": "ทุกเด็ค",
+   "price": 0,
+   "owned": true
+  },
+  {
+   "code": 300201002,
+   "name_en": "Destiny Draw",
+   "name": "จั่วแห่งโชคชะตา",
+   "desc": "ถ้าเสีย LP ตั้งแต่ 2000 ขึ้นไป ใน Draw Phase ถัดไปเลือกการ์ดใบไหนก็ได้จากเด็คขึ้นมือแทนการจั่ว",
+   "for": "ทุกเด็ค",
+   "price": 0,
+   "owned": true
+  },
+  {
+   "code": 300301001,
+   "name_en": "Power Up!",
+   "name": "เพิ่มพลัง",
+   "desc": "ครั้งเดียวต่อดวล: มอนสเตอร์หน้าเปิด 1 ใบ ATK +500 จนจบเทิร์น",
+   "for": "ทุกเด็ค",
+   "price": 0,
+   "owned": true
+  },
+  {
+   "code": 300302003,
+   "name_en": "Low Blow",
+   "name": "ต่อยใต้เข็มขัด",
+   "desc": "ครั้งเดียวต่อดวล: มอนสเตอร์ 1 ใบ ATK/DEF -500 จนจบเทิร์น",
+   "for": "ทุกเด็ค",
+   "price": 0,
+   "owned": true
+  },
+  {
+   "code": 300302004,
+   "name_en": "Digging for Gold",
+   "name": "ขุดหาทอง",
+   "desc": "ครั้งเดียวต่อดวล: Banish การ์ดในสุสาน 3 ใบ แล้วจั่ว 1 ใบ",
+   "for": "ทุกเด็ค",
+   "price": 150,
+   "owned": false
+  },
+  {
+   "code": 300307018,
+   "name_en": "Kaibacorp Research",
+   "name": "งานวิจัยไคบะคอร์ป",
+   "desc": "ครั้งเดียวต่อดวล: สับมอนสเตอร์ในสุสาน 1 ใบกลับเด็ค ทิ้งการ์ดในมือ 1 ใบ แล้ว Draw Phase ถัดไปจั่ว 2 ใบ",
+   "for": "ทุกเด็ค",
+   "price": 200,
+   "owned": false
+  },
+  {
+   "code": 300202002,
+   "name_en": "Beatdown!",
+   "name": "ถล่มยับ",
+   "desc": "ถ้าควบคุมมอนสเตอร์เลเวล 5+ : มอนสเตอร์ของเราทั้งหมด ATK +300 ต่อมอนสเตอร์เลเวล 5+ แต่ละใบ",
+   "for": "เด็คมอนสเตอร์ใหญ่",
+   "price": 250,
+   "owned": false
+  },
+  {
+   "code": 300202001,
+   "name_en": "Peak Performance",
+   "name": "ฟอร์มสูงสุด",
+   "desc": "มอนสเตอร์ Dragon / Winged Beast / Thunder ทั้งสนาม ATK/DEF +200 (ติดตัวตลอดดวล)",
+   "for": "Blue-Eyes / มังกร",
+   "price": 200,
+   "owned": false
+  },
+  {
+   "code": 300201001,
+   "name_en": "Power of Dark",
+   "name": "พลังแห่งความมืด",
+   "desc": "มอนสเตอร์ Fiend / Spellcaster ทั้งสนาม ATK/DEF +200 และ Fairy -200 (ติดตัวตลอดดวล)",
+   "for": "Dark Magician",
+   "price": 200,
+   "owned": false
+  },
+  {
+   "code": 300303009,
+   "name_en": "Magician's Act",
+   "name": "การแสดงของจอมเวท",
+   "desc": "เริ่มดวล: ค้น \"Dark Magician\" ขึ้นมือ (แล้วสับการ์ด 1 ใบกลับ) หรือสับ DM กลับแล้วจั่ว 1 / สังเวย DM เพื่อจั่ว 2 ใบ (อย่างละครั้ง)",
+   "for": "Dark Magician",
+   "price": 300,
+   "owned": false
+  },
+  {
+   "code": 300307007,
+   "name_en": "Now You See Them...",
+   "name": "มายากลหายตัว",
+   "desc": "ครั้งเดียวต่อดวล: ถ้ามี Dark Magician 2 ใบขึ้นไปในมือ วางไว้ใต้เด็คแล้วจั่ว (1 ใบ->1, 2 ใบ->3, 3 ใบ->5)",
+   "for": "Dark Magician",
+   "price": 250,
+   "owned": false
+  },
+  {
+   "code": 300306002,
+   "name_en": "Forged Steel",
+   "name": "เหล็กกล้าเผาไฟ",
+   "desc": "ครั้งเดียวต่อดวล: เปลี่ยนชื่อมอนสเตอร์ Red-Eyes / มังกรปกติ 1 ใบเป็น \"Red-Eyes Black Dragon\" + Red-Eyes Darkness Dragon ชุบมังกรจากสุสานได้",
+   "for": "Red-Eyes",
+   "price": 300,
+   "owned": false
+  },
+  {
+   "code": 300302001,
+   "name_en": "Fusion Party!",
+   "name": "ปาร์ตี้ฟิวชั่น",
+   "desc": "ครั้งเดียวต่อดวล: ทิ้งการ์ด 1 ใบ แล้ว Fusion Summon จาก Extra Deck โดยใช้วัตถุดิบจากมือ/สนาม (ไม่ต้องใช้ Polymerization)",
+   "for": "เด็คฟิวชั่น",
+   "price": 350,
+   "owned": false
+  },
+  {
+   "code": 300305001,
+   "name_en": "HEROES UNITE - FUSION!!",
+   "name": "ฮีโร่รวมพลัง ฟิวชั่น!!",
+   "desc": "ครั้งเดียวต่อดวล: ทิ้ง 1 ใบ แล้ว Fusion Summon \"Elemental HERO\" (บางกรณีใช้วัตถุดิบจากเด็คได้)",
+   "for": "Elemental HERO",
+   "price": 300,
+   "owned": false
+  },
+  {
+   "code": 300302002,
+   "name_en": "Ritual Ceremony",
+   "name": "พิธีกรรม",
+   "desc": "ครั้งเดียวต่อดวล: เปิดมอนสเตอร์ Ritual ในมือ แล้วค้น Ritual Spell ที่ระบุชื่อขึ้นมือ",
+   "for": "เด็คริทชวล",
+   "price": 250,
+   "owned": false
+  },
+  {
+   "code": 300205003,
+   "name_en": "Shadow Reborn",
+   "name": "คืนชีพเงามืด",
+   "desc": "ครั้งเดียวต่อดวล: จ่าย LP ครึ่งหนึ่ง Special Summon มอนสเตอร์จากสุสานฝั่งไหนก็ได้ 1 ใบ (เทิร์นนั้นศัตรูไม่โดน Battle Damage)",
+   "for": "ทุกเด็ค",
+   "price": 400,
+   "owned": false
+  },
+  {
+   "code": 300205001,
+   "name_en": "Inner Conflict",
+   "name": "ความขัดแย้งภายใน",
+   "desc": "ครั้งเดียวต่อดวล: จ่าย 2000 LP ยึดมอนสเตอร์ศัตรู (ที่ Normal Summon ได้) 1 ใบจนจบเทิร์น",
+   "for": "ทุกเด็ค",
+   "price": 400,
+   "owned": false
+  },
+  {
+   "code": 300303012,
+   "name_en": "I'm Just Gonna Attack!",
+   "name": "บุกมันเลย!",
+   "desc": "ครั้งเดียวต่อดวล: มอนสเตอร์ 1 ใบ ATK +100 และ Trap/เอฟเฟกต์แรกของศัตรูใน Battle Phase โดนลบล้าง",
+   "for": "ทุกเด็ค",
+   "price": 350,
+   "owned": false
+  },
+  {
+   "code": 300201009,
+   "name_en": "Millennium Eye",
+   "name": "ดวงตาพันปี",
+   "desc": "เริ่มดวล: ดูมือแรกของศัตรู และเลือกให้ศัตรูสับมือทั้งหมดแล้วจั่วใหม่ได้",
+   "for": "ทุกเด็ค",
+   "price": 300,
+   "owned": false
+  },
+  {
+   "code": 300201004,
+   "name_en": "Prescience",
+   "name": "ญาณหยั่งรู้",
+   "desc": "ถ้า LP ศัตรูมากกว่า 2 เท่าของเรา: ดูการ์ดใบบนสุดของเด็คทั้งสองฝ่ายได้ตลอด",
+   "for": "ทุกเด็ค",
+   "price": 150,
+   "owned": false
+  },
+  {
+   "code": 300990010,
+   "name_en": "Bonds of the Converging Stars",
+   "name": "พันธะแห่งดวงดาวที่มาบรรจบ",
+   "desc": "เริ่มดวล: ได้ Stardust Dragon, Red Dragon Archfiend, Black-Winged Dragon, Black Rose Dragon, Ancient Fairy Dragon เข้า Extra Deck\n(1) ครั้งเดียวต่อดวล: ส่งการ์ดในมือ 1 ใบกลับเด็ค แล้วเรียก Junk Synchron + Speed Warrior (นับเป็นเลเวล 5) จากนอกเกม -> ซิงโครเลเวล 8 ได้ทันที\n(2) ครั้งเดียวต่อดวล: ถ้าคู่ต่อสู้มีมอนสเตอร์ เรียกมังกร Signer 1 ใบจาก Extra Deck โดยไม่ต้องทำตามเงื่อนไข",
+   "for": "Yusei / Synchro (Junk, Stardust)",
+   "price": 3000,
+   "owned": false,
+   "tier": "legendary"
+  },
+  {
+   "code": 300990011,
+   "name_en": "Pharaoh's Destiny",
+   "name": "โชคชะตาแห่งฟาโรห์",
+   "desc": "(1) ครั้งเดียวต่อดวล: เลือกการ์ดใบใดก็ได้จากเด็คขึ้นมือ\n(2) ครั้งเดียวต่อดวล: ถ้าคุณไม่มีมอนสเตอร์ เรียก Dark Magician และ Dark Magician Girl จากนอกเกม",
+   "for": "Yugi / Dark Magician",
+   "price": 3000,
+   "owned": false,
+   "tier": "legendary"
+  },
+  {
+   "code": 300990012,
+   "name_en": "Blue-Eyes Supremacy",
+   "name": "ราชันมังกรตาสีน้ำเงิน",
+   "desc": "เริ่มดวล: ได้ Blue-Eyes Ultimate Dragon เข้า Extra Deck\n(1) ครั้งเดียวต่อดวล: เรียก Blue-Eyes White Dragon จากนอกเกม\n(2) ครั้งเดียวต่อดวล: ถ้าคุณมี Blue-Eyes White Dragon หน้าเปิด ทำลายมอนสเตอร์ของคู่ต่อสู้ทั้งหมด (เทิร์นนี้โจมตีได้เฉพาะ Blue-Eyes White Dragon)",
+   "for": "Kaiba / Blue-Eyes",
+   "price": 3000,
+   "owned": false,
+   "tier": "legendary"
+  },
+  {
+   "code": 300990013,
+   "name_en": "Hero's Bond",
+   "name": "สายสัมพันธ์ฮีโร่",
+   "desc": "เริ่มดวล: ได้ Flame Wingman และ Shining Flare Wingman เข้า Extra Deck\n(1) ครั้งเดียวต่อดวล: ถ้าคู่ต่อสู้มีมอนสเตอร์ เรียก Elemental HERO Flame Wingman จาก Extra Deck (นับเป็นฟิวชั่นซัมมอน)\n(2) ครั้งเดียวต่อดวล: ได้ Polymerization จากนอกเกม + Elemental HERO 1 ใบจากเด็คขึ้นมือ",
+   "for": "Jaden / Elemental HERO",
+   "price": 3000,
+   "owned": false,
+   "tier": "legendary"
+  },
+  {
+   "code": 300990014,
+   "name_en": "Burning Soul of the King",
+   "name": "วิญญาณร้อนแรงแห่งราชา",
+   "desc": "เริ่มดวล: ได้ Red Dragon Archfiend เข้า Extra Deck\n(1) ครั้งเดียวต่อดวล: เรียก Red Dragon Archfiend จาก Extra Deck (นับเป็นซิงโครซัมมอน) และ ATK +1000\n(2) ครั้งเดียวต่อดวล: ถ้ามี Red Dragon Archfiend หน้าเปิด ทำลายมอนสเตอร์ท่าป้องกันของคู่ต่อสู้ทั้งหมด และสร้างดาเมจ 500 ต่อใบ",
+   "for": "Jack / Red Dragon Archfiend",
+   "price": 3000,
+   "owned": false,
+   "tier": "legendary"
+  },
+  {
+   "code": 300990015,
+   "name_en": "Overflowing Hope",
+   "name": "ความหวังล้นเหลือ",
+   "desc": "ทำงานอัตโนมัติ: เริ่มดวลด้วยการ์ดในมือเพิ่ม 2 ใบ และ LP เพิ่ม 2000",
+   "for": "ทุกเด็ค",
+   "price": 2000,
+   "owned": false,
+   "tier": "broken"
+  },
+  {
+   "code": 300990016,
+   "name_en": "Heavenly Reversal",
+   "name": "พลิกฟ้าคว่ำดิน",
+   "desc": "ครั้งเดียวต่อดวล: ถ้า LP ของคุณเหลือไม่เกินครึ่งของคู่ต่อสู้ หรือไม่เกิน 2000 จั่ว 3 ใบ และฟื้น LP 1000",
+   "for": "ทุกเด็ค",
+   "price": 2000,
+   "owned": false,
+   "tier": "broken"
+  },
+  {
+   "code": 300990017,
+   "name_en": "Soul Revival",
+   "name": "ปลุกวิญญาณ",
+   "desc": "ครั้งเดียวต่อดวล: เลือกมอนสเตอร์ 1 ใบจากสุสานของฝ่ายใดก็ได้ มาลงสนามฝั่งคุณ",
+   "for": "ทุกเด็ค",
+   "price": 2000,
+   "owned": false,
+   "tier": "broken"
+  },
+  {
+   "code": 300990018,
+   "name_en": "Judgment of Thunder",
+   "name": "สายฟ้าพิพากษา",
+   "desc": "ครั้งเดียวต่อดวล: ถ้าคู่ต่อสู้มีมอนสเตอร์มากกว่าคุณตั้งแต่ 2 ใบขึ้นไป ทำลายมอนสเตอร์ของคู่ต่อสู้ทั้งหมด",
+   "for": "ทุกเด็ค",
+   "price": 2000,
+   "owned": false,
+   "tier": "broken"
+  },
+  {
+   "code": 300990019,
+   "name_en": "Rank-Up Hope",
+   "name": "ความหวังแห่งแรงก์อัป",
+   "desc": "เริ่มดวล: ได้ Number 39: Utopia เข้า Extra Deck\nครั้งเดียวต่อดวล: เรียก Utopia จาก Extra Deck (นับเป็น Xyz ซัมมอน) แล้วนำการ์ด 2 ใบบนสุดของเด็คเป็นวัตถุดิบ",
+   "for": "Yuma / Utopia (Xyz)",
+   "price": 3000,
+   "owned": false,
+   "tier": "legendary"
+  },
+  {
+   "code": 300990020,
+   "name_en": "Pendulum Dimension",
+   "name": "มิติเพนดูลัม",
+   "desc": "ครั้งเดียวต่อดวล: เรียก Odd-Eyes Pendulum Dragon จากนอกเกม แล้วเลือกมอนสเตอร์เพนดูลัม 1 ใบจากเด็คขึ้นมือ",
+   "for": "Yuya / Pendulum",
+   "price": 3000,
+   "owned": false,
+   "tier": "legendary"
+  },
+  {
+   "code": 300990021,
+   "name_en": "Storm Access",
+   "name": "สตอร์มแอคเซส",
+   "desc": "เริ่มดวล: ได้ Decode Talker และ Firewall Dragon เข้า Extra Deck\n(1) ครั้งเดียวต่อดวล: ถ้าคู่ต่อสู้มีมอนสเตอร์ เรียก Decode Talker จาก Extra Deck (นับเป็นลิงก์ซัมมอน)\n(2) ครั้งเดียวต่อดวล: ถ้า LP น้อยกว่าคู่ต่อสู้ เรียก Firewall Dragon จาก Extra Deck",
+   "for": "Playmaker / Link (Cyberse)",
+   "price": 3000,
+   "owned": false,
+   "tier": "legendary"
+  },
+  {
+   "code": 300990022,
+   "name_en": "Wrath of the Sky Dragon",
+   "name": "พิโรธแห่งมังกรสวรรค์",
+   "desc": "(1) ครั้งเดียวต่อดวล: ถ้ามี Slifer the Sky Dragon ในเด็ค เรียกลงสนามโดยไม่ต้องสังเวย แล้วจั่วจนการ์ดในมือครบ 6 ใบ (Slifer ATK/DEF = 1000 x การ์ดในมือ = 6000!) เทิร์นนี้ Slifer ตกเป็นเป้าเอฟเฟกต์ไม่ได้และไม่โดนเอฟเฟกต์ของคู่ต่อสู้ (ตอน End Phase Slifer ลงสุสานตามปกติ)\n(2) ครั้งเดียวต่อดวล: ถ้ามี Slifer บนสนาม จั่วจนมือครบ 6 ใบอีกครั้ง และเทิร์นนี้ Slifer ไม่โดนเอฟเฟกต์ของคู่ต่อสู้\n* ต้องมี Slifer ในเด็คถึงจะเรียกได้",
+   "for": "เด็คที่มี Slifer the Sky Dragon",
+   "price": 8000,
+   "owned": false,
+   "tier": "god"
+  },
+  {
+   "code": 300990023,
+   "name_en": "Fist of the Tormentor",
+   "name": "กำปั้นแห่งผู้ทรมาน",
+   "desc": "(1) ครั้งเดียวต่อดวล: ถ้ามี Obelisk the Tormentor ในเด็ค เรียกลงสนามโดยไม่ต้องสังเวย เทิร์นนี้ ATK +2000 (6000) ตีทะลุท่าป้องกัน และไม่โดนเอฟเฟกต์ของคู่ต่อสู้ อยู่บนสนามต่อ (ไม่ถูกส่งลงสุสานตอน End Phase)\n(2) ครั้งเดียวต่อดวล: ถ้ามี Obelisk บนสนาม ใช้ God Hand Impact โดยไม่ต้องสังเวย: ทำลายมอนสเตอร์ของคู่ต่อสู้ทั้งหมด + 4000 ดาเมจ และ Obelisk ยังโจมตีได้ในเทิร์นนั้น\n* ต้องมี Obelisk ในเด็คถึงจะเรียกได้",
+   "for": "เด็คที่มี Obelisk the Tormentor",
+   "price": 8000,
+   "owned": false,
+   "tier": "god"
+  },
+  {
+   "code": 300990024,
+   "name_en": "Blaze of the Sun God",
+   "name": "เปลวเพลิงแห่งเทพสุริยะ",
+   "desc": "(1) ครั้งเดียวต่อดวล: ถ้ามี The Winged Dragon of Ra ในเด็ค เรียกลงสนาม จ่าย LP จนเหลือ 100 แล้ว ATK/DEF ของ Ra เท่ากับ LP ที่จ่าย เทิร์นนี้ไม่โดนเอฟเฟกต์ของคู่ต่อสู้ (ระวัง: LP เหลือ 100)\n(2) ครั้งเดียวต่อดวล: ถ้ามี Ra บนสนาม เทิร์นนี้ Ra โจมตีมอนสเตอร์ของคู่ต่อสู้ได้ทุกตัว และฟื้น LP เท่าครึ่งหนึ่งของ ATK Ra\n(ฟีนิกซ์) ครั้งเดียวต่อดวล: ถ้า Ra ถูกทำลาย จะฟื้นกลับมาทันทีด้วย ATK/DEF 4000\n* ต้องมี Ra ในเด็คถึงจะเรียกได้",
+   "for": "เด็คที่มี The Winged Dragon of Ra",
+   "price": 8000,
+   "owned": false,
+   "tier": "god"
+  }
+ ]
+}

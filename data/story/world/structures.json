@@ -1,0 +1,437 @@
+{
+ "_comment": "Structure Deck: file = ไฟล์ .ydk (เส้นทางจากโฟลเดอร์เกม), price = เพชร, cat = legend/meta/classic",
+ "structures": [
+  {
+   "id": "L_yugi",
+   "cat": "legend",
+   "name": "Yugi - Pharaoh's Legacy",
+   "desc": "เด็คของยามิยูกิ: Dark Magician, Dark Magician Girl และเวทย์ช่วยรบ",
+   "file": "./story/decks/yugi.ydk",
+   "price": 800,
+   "cover": 36996508
+  },
+  {
+   "id": "L_kaiba",
+   "cat": "legend",
+   "name": "Kaiba - White Dragon Supremacy",
+   "desc": "เด็คไคบะ: Blue-Eyes White Dragon x3 พลังโจมตีล้นหลาม",
+   "file": "./story/decks/kaiba.ydk",
+   "price": 800,
+   "cover": 89631133
+  },
+  {
+   "id": "L_joey",
+   "cat": "legend",
+   "name": "Joey - Red-Eyes Gamble",
+   "desc": "เด็คโจโนะอุจิ: Red-Eyes Black Dragon และการ์ดพนันโชค",
+   "file": "./story/decks/joey.ydk",
+   "price": 800,
+   "cover": 74677422
+  },
+  {
+   "id": "L_marik",
+   "cat": "legend",
+   "name": "Marik - Ra's Shadow",
+   "desc": "เด็คมาลิก: เทพ Ra และการ์ดสายมืด",
+   "file": "./story/decks/marik.ydk",
+   "price": 800,
+   "cover": 10000010
+  },
+  {
+   "id": "L_jaden",
+   "cat": "legend",
+   "name": "Jaden - Elemental HERO",
+   "desc": "เด็คจูได: Elemental HERO และฟิวชั่นฮีโร่",
+   "file": "./story/decks/jaden.ydk",
+   "price": 800,
+   "cover": 89943723
+  },
+  {
+   "id": "L_zane",
+   "cat": "legend",
+   "name": "Zane - Cyber Legacy",
+   "desc": "เด็คไคเซอร์: Cyber Dragon และ Cyber End Dragon",
+   "file": "./story/decks/zane.ydk",
+   "price": 800,
+   "cover": 1546123
+  },
+  {
+   "id": "L_chazz",
+   "cat": "legend",
+   "name": "Chazz - Ojama Thunder",
+   "desc": "เด็คมันโจเมะ: Armed Dragon และ Ojama",
+   "file": "./story/decks/chazz.ydk",
+   "price": 800,
+   "cover": 73879377
+  },
+  {
+   "id": "L_yusei",
+   "cat": "legend",
+   "name": "Yusei - Stardust Bonds",
+   "desc": "เด็คยูเซย์: Junk, Synchron และ Stardust Dragon",
+   "file": "./story/decks/yusei.ydk",
+   "price": 800,
+   "cover": 44508094
+  },
+  {
+   "id": "L_jack",
+   "cat": "legend",
+   "name": "Jack - King's Archfiend",
+   "desc": "เด็คแจ็ค: Red Dragon Archfiend และ Resonator",
+   "file": "./story/decks/jack.ydk",
+   "price": 800,
+   "cover": 70902743
+  },
+  {
+   "id": "L_crow",
+   "cat": "legend",
+   "name": "Crow - Blackwing Storm",
+   "desc": "เด็คโครว์: Blackwing เรียกฝูงนก",
+   "file": "./story/decks/crow.ydk",
+   "price": 800,
+   "cover": 9012916
+  },
+  {
+   "id": "L_yuma",
+   "cat": "legend",
+   "name": "Yuma - Hope of Utopia",
+   "desc": "เด็คยูมะ: Number 39 Utopia และ Zexal Weapon",
+   "file": "./story/decks/yuma.ydk",
+   "price": 800,
+   "cover": 84013237
+  },
+  {
+   "id": "L_shark",
+   "cat": "legend",
+   "name": "Shark - Abyss Sharks",
+   "desc": "เด็คชาร์ค: ฉลามน้ำและ Number 17",
+   "file": "./story/decks/shark.ydk",
+   "price": 800,
+   "cover": 69610924
+  },
+  {
+   "id": "L_kite",
+   "cat": "legend",
+   "name": "Kite - Photon Galaxy",
+   "desc": "เด็คไคโตะ: Galaxy-Eyes Photon Dragon",
+   "file": "./story/decks/kite.ydk",
+   "price": 800,
+   "cover": 93717133
+  },
+  {
+   "id": "L_yuya",
+   "cat": "legend",
+   "name": "Yuya - Odd-Eyes Show",
+   "desc": "เด็คยูยะ: Odd-Eyes และ Performapal เพนดูลัม",
+   "file": "./story/decks/yuya.ydk",
+   "price": 800,
+   "cover": 16178681
+  },
+  {
+   "id": "L_declan",
+   "cat": "legend",
+   "name": "Declan - D/D/D King",
+   "desc": "เด็คเรย์จิ: D/D/D ราชาแห่งมิติ",
+   "file": "./story/decks/declan.ydk",
+   "price": 800,
+   "cover": 0
+  },
+  {
+   "id": "L_yuri",
+   "cat": "legend",
+   "name": "Yuri - Predaplant Venom",
+   "desc": "เด็คยูริ: Predaplant ฟิวชั่นสายพิษ",
+   "file": "./story/decks/yuri.ydk",
+   "price": 800,
+   "cover": 0
+  },
+  {
+   "id": "L_playmaker",
+   "cat": "legend",
+   "name": "Playmaker - Code Talker",
+   "desc": "เด็คเพลย์เมกเกอร์: Code Talker ลิงก์ไซเบอร์ส",
+   "file": "./story/decks/playmaker.ydk",
+   "price": 800,
+   "cover": 1861629
+  },
+  {
+   "id": "L_soulburner",
+   "cat": "legend",
+   "name": "Soulburner - Salamangreat",
+   "desc": "เด็คโซลเบิร์นเนอร์: Salamangreat ไฟแห่งการเกิดใหม่",
+   "file": "./story/decks/soulburner.ydk",
+   "price": 800,
+   "cover": 0
+  },
+  {
+   "id": "L_revolver",
+   "cat": "legend",
+   "name": "Revolver - Borrel Dragons",
+   "desc": "เด็ครีวอลเวอร์: Rokket และ Borreload Dragon",
+   "file": "./story/decks/revolver.ydk",
+   "price": 800,
+   "cover": 31833038
+  },
+  {
+   "id": "L_ai",
+   "cat": "legend",
+   "name": "Ai - Altergeist Trick",
+   "desc": "เด็คไอ: @Ignister และลิงก์มืด",
+   "file": "./story/decks/ai.ydk",
+   "price": 800,
+   "cover": 0
+  },
+  {
+   "id": "M_Ryzeal",
+   "cat": "meta",
+   "name": "Ryzeal",
+   "desc": "เด็คเมต้าปัจจุบัน: Ryzeal เอ็กซ์ซีส์แรงก์ 4 + แฮนด์แทรปครบ",
+   "file": "./WindBot/Decks/AI_Ryzeal.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Maliss",
+   "cat": "meta",
+   "name": "Maliss",
+   "desc": "Maliss: ลิงก์สายแบนิช คอมโบยาวและแรง",
+   "file": "./WindBot/Decks/AI_Maliss.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Yummy",
+   "cat": "meta",
+   "name": "Yummy",
+   "desc": "Yummy: ซิงโครน่ารักแต่ปิดเกมได้ไว",
+   "file": "./WindBot/Decks/AI_Neko.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Kashtira",
+   "cat": "meta",
+   "name": "Kashtira",
+   "desc": "Kashtira: ล็อกโซนและแบนิชคว่ำ",
+   "file": "./WindBot/Decks/AI_Kashtira.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Labrynth",
+   "cat": "meta",
+   "name": "Labrynth",
+   "desc": "Labrynth: กับดักต่อเนื่องและบ้านปีศาจ",
+   "file": "./WindBot/Decks/AI_Labrynth.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Tearlaments",
+   "cat": "meta",
+   "name": "Tearlaments",
+   "desc": "Tearlaments: ฟิวชั่นจากสุสาน ตัวท็อปยุคหนึ่ง",
+   "file": "./WindBot/Decks/AI_Tearlaments.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Swordsoul",
+   "cat": "meta",
+   "name": "Swordsoul",
+   "desc": "Swordsoul: ซิงโครสาย Wyrm คอมโบเร็ว",
+   "file": "./WindBot/Decks/AI_Swordsoul.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Exosister",
+   "cat": "meta",
+   "name": "Exosister",
+   "desc": "Exosister: เอ็กซ์ซีส์ต่อต้านสุสาน",
+   "file": "./WindBot/Decks/AI_Exosister.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Branded",
+   "cat": "meta",
+   "name": "Branded Despia",
+   "desc": "Branded: ฟิวชั่น Albaz และ Despia",
+   "file": "./WindBot/Decks/AI_Dragma.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_BE2025",
+   "cat": "meta",
+   "name": "Blue-Eyes 2025",
+   "desc": "Blue-Eyes รุ่นใหม่ 2025 พร้อมซัพพอร์ตเต็ม",
+   "file": "./WindBot/Decks/AI_BE2025.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_SkyStriker",
+   "cat": "meta",
+   "name": "Sky Striker",
+   "desc": "Sky Striker: เวทย์ควบคุม เล่นได้นาน",
+   "file": "./WindBot/Decks/AI_SkyStriker.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Yubel",
+   "cat": "meta",
+   "name": "Yubel",
+   "desc": "Yubel: ปีศาจแห่งความรัก สายสะท้อนดาเมจ",
+   "file": "./WindBot/Decks/AI_Yubel.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Snake",
+   "cat": "meta",
+   "name": "Sacred Beasts",
+   "desc": "Sacred Beast: อสูรศักดิ์สิทธิ์ 3 ตน",
+   "file": "./WindBot/Decks/AI_SacredBeast.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Orcust",
+   "cat": "meta",
+   "name": "Orcust",
+   "desc": "Orcust: ลิงก์จากสุสาน ตัวท็อปยุค Link",
+   "file": "./WindBot/Decks/AI_Orcust.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Zoodiac",
+   "cat": "meta",
+   "name": "Zoodiac",
+   "desc": "Zoodiac: เอ็กซ์ซีส์สัตว์ 12 นักษัตร",
+   "file": "./WindBot/Decks/AI_Zoodiac.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Dragun",
+   "cat": "meta",
+   "name": "Dragon Link",
+   "desc": "Dragon Link: Dragun of Red-Eyes ล็อกเกม",
+   "file": "./WindBot/Decks/AI_Dragun.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Tri",
+   "cat": "meta",
+   "name": "Thunder Dragon",
+   "desc": "Thunder Dragon: มังกรสายฟ้าเติบโตจากสุสาน",
+   "file": "./WindBot/Decks/AI_ThunderDragon.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "M_Salaman",
+   "cat": "meta",
+   "name": "Salamangreat",
+   "desc": "Salamangreat: ลิงก์ไฟเกิดใหม่",
+   "file": "./WindBot/Decks/AI_Salamangreat.ydk",
+   "price": 1500,
+   "cover": 0
+  },
+  {
+   "id": "C_CyberDragon",
+   "cat": "classic",
+   "name": "Cyber Dragon",
+   "desc": "Cyber Dragon: จักรกลฟิวชั่นคลาสสิก",
+   "file": "./WindBot/Decks/AI_CyberDragon.ydk",
+   "price": 600,
+   "cover": 0
+  },
+  {
+   "id": "C_Blackwing",
+   "cat": "classic",
+   "name": "Blackwing",
+   "desc": "Blackwing: นกดำซิงโคร",
+   "file": "./WindBot/Decks/AI_Blackwing.ydk",
+   "price": 600,
+   "cover": 0
+  },
+  {
+   "id": "C_Lightsworn",
+   "cat": "classic",
+   "name": "Lightsworn",
+   "desc": "Lightsworn: ส่งเด็คลงสุสานแล้วพลิกเกม",
+   "file": "./WindBot/Decks/AI_Lightsworn.ydk",
+   "price": 600,
+   "cover": 0
+  },
+  {
+   "id": "C_Qliphort",
+   "cat": "classic",
+   "name": "Qliphort",
+   "desc": "Qliphort: เพนดูลัมจักรกล",
+   "file": "./WindBot/Decks/AI_Qliphort.ydk",
+   "price": 600,
+   "cover": 0
+  },
+  {
+   "id": "C_Nekroz",
+   "cat": "classic",
+   "name": "Nekroz",
+   "desc": "Nekroz: พิธีกรรมกระจกน้ำแข็ง",
+   "file": "./WindBot/Decks/AI_Nekroz.ydk",
+   "price": 600,
+   "cover": 0
+  },
+  {
+   "id": "C_Trickstar",
+   "cat": "classic",
+   "name": "Trickstar",
+   "desc": "Trickstar: ไอดอลสายเบิร์น",
+   "file": "./WindBot/Decks/AI_Trickstar.ydk",
+   "price": 600,
+   "cover": 0
+  },
+  {
+   "id": "C_Gravekeeper",
+   "cat": "classic",
+   "name": "Gravekeeper",
+   "desc": "Gravekeeper: ผู้พิทักษ์สุสาน",
+   "file": "./WindBot/Decks/AI_Gravekeeper.ydk",
+   "price": 600,
+   "cover": 0
+  },
+  {
+   "id": "C_Witchcraft",
+   "cat": "classic",
+   "name": "Witchcraft",
+   "desc": "Witchcraft: แม่มดสายเวทย์",
+   "file": "./WindBot/Decks/AI_Witchcraft.ydk",
+   "price": 600,
+   "cover": 0
+  },
+  {
+   "id": "C_Dragunity",
+   "cat": "classic",
+   "name": "Dragunity",
+   "desc": "Dragunity: มังกรอัศวินซิงโคร",
+   "file": "./WindBot/Decks/AI_Dragunity.ydk",
+   "price": 600,
+   "cover": 0
+  },
+  {
+   "id": "C_Burn",
+   "cat": "classic",
+   "name": "Burn",
+   "desc": "Burn: เผา LP ให้หมดไว",
+   "file": "./WindBot/Decks/AI_Burn.ydk",
+   "price": 600,
+   "cover": 0
+  }
+ ]
+}

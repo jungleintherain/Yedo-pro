@@ -1,0 +1,58 @@
+name: Build EDOPro Story Mode (Windows)
+on:
+  push:
+  workflow_dispatch:
+env:
+  DEPENDENCIES_BASE_URL: https://github.com/edo9300/edopro-vcpkg-cache/releases/latest/download
+jobs:
+  Windows:
+    runs-on: windows-2022
+    env:
+      TRAVIS_OS_NAME: windows
+      DXSDK_DIR: /c/d3d9sdk/
+      VCPKG_ROOT: /c/vcpkg2
+      BUILD_CONFIG: release
+      ARCH: x86
+      PICS_URL: https://pics.projectignis.org:2096/pics/{}.jpg
+      FIELDS_URL: https://pics.projectignis.org:2096/field/{}.png
+      COVERS_URL: https://pics.projectignis.org:2096/pics/cover/{}.jpg
+    steps:
+    - name: Set custom env vars
+      shell: bash
+      run: echo "VCPKG_CACHE_ZIP_URL=$DEPENDENCIES_BASE_URL/installed_x86-windows-static.zip" >> $GITHUB_ENV
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v3
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+        submodules: recursive
+    - name: Install winxp components
+      run: |
+        Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+        $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        $componentsToAdd= @(
+          "Microsoft.VisualStudio.Component.VC.v141.x86.x64",
+          "Microsoft.VisualStudio.Component.WinXP"
+        )
+        [string]$workloadArgs = $componentsToAdd | ForEach-Object {" --add " +  $_}
+        $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
+        $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+    - name: Install premake
+      shell: bash
+      run: ./travis/install-premake5.sh
+    - name: Install dependencies
+      shell: bash
+      run: ./travis/dependencies.sh
+    - name: Build
+      shell: bash
+      run: ./travis/build.sh
+    - name: Package story mode
+      shell: bash
+      run: |
+        mkdir -p package
+        cp bin/release/ygoprodll.exe package/EDOPro-Story.exe
+        cp -r story-pack/* package/
+    - uses: actions/upload-artifact@v4
+      with:
+        name: EDOPro-Story-Windows
+        path: package/

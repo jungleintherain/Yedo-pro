@@ -1,0 +1,164 @@
+{
+ "collection_lock": true,
+ "start": {
+  "gems": 1000,
+  "gold": 3000,
+  "items": {
+   "ticket_bc": 2,
+   "trader_refresh": 1,
+   "duelist_call": 1
+  }
+ },
+ "pack": {
+  "size": 8,
+  "rates": [
+   60,
+   25,
+   11,
+   4
+  ],
+  "last_slot_ur": 20
+ },
+ "trader": {
+  "size": 6,
+  "prices": [
+   200,
+   500,
+   1500,
+   4000
+  ]
+ },
+ "rewards": {
+  "story_first_gems": 150,
+  "story_first_gold": 800,
+  "story_repeat_gems": 10,
+  "story_repeat_gold": 200,
+  "lose_gold": 50
+ },
+ "roaming": {
+  "slots": 6,
+  "gold_base": 150,
+  "gold_per_tier": 100,
+  "gems_base": 10,
+  "gems_per_tier": 5,
+  "card_drop": 60,
+  "item_drop": 15,
+  "item_pool": [
+   "trader_refresh",
+   "duelist_call",
+   "gem_pouch",
+   "gold_bag",
+   "ticket_staples",
+   "ticket_bc",
+   "ticket_gx",
+   "ticket_5ds"
+  ]
+ },
+ "items": [
+  {
+   "id": "ticket_bc",
+   "name": "ตั๋วซอง Battle City Legends",
+   "desc": "เปิดซอง Battle City Legends ได้ฟรี 1 ซอง",
+   "type": "pack_ticket",
+   "pack": "bc"
+  },
+  {
+   "id": "ticket_gx",
+   "name": "ตั๋วซอง Academia Heroes",
+   "desc": "เปิดซอง Academia Heroes ได้ฟรี 1 ซอง",
+   "type": "pack_ticket",
+   "pack": "gx"
+  },
+  {
+   "id": "ticket_5ds",
+   "name": "ตั๋วซอง Synchro Riders",
+   "desc": "เปิดซอง Synchro Riders ได้ฟรี 1 ซอง",
+   "type": "pack_ticket",
+   "pack": "5ds"
+  },
+  {
+   "id": "ticket_zexal",
+   "name": "ตั๋วซอง Number Hunters",
+   "desc": "เปิดซอง Number Hunters ได้ฟรี 1 ซอง",
+   "type": "pack_ticket",
+   "pack": "zexal"
+  },
+  {
+   "id": "ticket_arcv",
+   "name": "ตั๋วซอง Pendulum Dimensions",
+   "desc": "เปิดซอง Pendulum Dimensions ได้ฟรี 1 ซอง",
+   "type": "pack_ticket",
+   "pack": "arcv"
+  },
+  {
+   "id": "ticket_vrains",
+   "name": "ตั๋วซอง Link VRAINS",
+   "desc": "เปิดซอง Link VRAINS ได้ฟรี 1 ซอง",
+   "type": "pack_ticket",
+   "pack": "vrains"
+  },
+  {
+   "id": "ticket_staples",
+   "name": "ตั๋วซอง Duelist Staples",
+   "desc": "เปิดซอง Duelist Staples ได้ฟรี 1 ซอง",
+   "type": "pack_ticket",
+   "pack": "staples"
+  },
+  {
+   "id": "gem_pouch",
+   "name": "ถุงเพชร",
+   "desc": "ได้รับเพชร 100",
+   "type": "gems",
+   "value": 100
+  },
+  {
+   "id": "gem_chest",
+   "name": "หีบเพชร",
+   "desc": "ได้รับเพชร 500",
+   "type": "gems",
+   "value": 500
+  },
+  {
+   "id": "gold_bag",
+   "name": "ถุงทอง",
+   "desc": "ได้รับทอง 1,000",
+   "type": "gold",
+   "value": 1000
+  },
+  {
+   "id": "trader_refresh",
+   "name": "ตั๋วรีเฟรชพ่อค้า",
+   "desc": "ให้พ่อค้าการ์ดนำสินค้าชุดใหม่มาทันที",
+   "type": "trader_refresh"
+  },
+  {
+   "id": "duelist_call",
+   "name": "ป้ายเรียกนักสู้",
+   "desc": "เรียกนักสู้สุ่มกลุ่มใหม่มาท้าดวลทันที",
+   "type": "duelist_call"
+  }
+ ],
+ "starters": [
+  {
+   "name": "Blue-Eyes",
+   "desc": "เด็คมังกรตาสีน้ำเงิน: มอนสเตอร์ไลท์มังกรพลังโจมตีสูง ฟิวชั่นเป็น Blue-Eyes Ultimate Dragon ได้ เล่นง่าย ตีแรง เหมาะกับคนชอบลุยตรงๆ",
+   "file": "blueeyes.ydk",
+   "cover": 89631139,
+   "deck_name": "[Starter] Blue-Eyes"
+  },
+  {
+   "name": "Dark Magician",
+   "desc": "เด็คจอมเวทย์ทมิฬ: ใช้เวทย์และกับดักคุมเกม พร้อมพิธีกรรม Magician of Black Chaos เหมาะกับคนชอบวางแผน",
+   "file": "darkmagician.ydk",
+   "cover": 46986414,
+   "deck_name": "[Starter] Dark Magician"
+  },
+  {
+   "name": "Red-Eyes",
+   "desc": "เด็คมังกรตาแดง: เน้นทำดาเมจตรงและพลิกเกมด้วยฟิวชั่น เหมาะกับคนชอบเสี่ยงและเล่นเร็ว",
+   "file": "redeyes.ydk",
+   "cover": 74677422,
+   "deck_name": "[Starter] Red-Eyes"
+  }
+ ]
+}
