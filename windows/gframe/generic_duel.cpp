@@ -791,6 +791,21 @@ void GenericDuel::Surrender(DuelPlayer* dp) {
 		event_del(etimer);
 	}
 }
+// YEdo: tournament clock ran out - the client decided the winner from the LP
+void GenericDuel::ForceResult(uint8_t winner, uint8_t reason) {
+	if(!pduel)
+		return;
+	uint8_t wbuf[3];
+	wbuf[0] = MSG_WIN;
+	wbuf[1] = winner;
+	wbuf[2] = reason;
+	NetServer::SendBufferToPlayer(nullptr, STOC_GAME_MSG, wbuf, 3);
+	ResendToAll();
+	replay_stream.emplace_back(wbuf, 2);
+	match_result.push_back(winner);
+	DuelEndProc();
+	event_del(etimer);
+}
 #define SEND(to) NetServer::SendCoreUtilsPacketToPlayer(to, STOC_GAME_MSG, packet)
 void GenericDuel::BeforeParsing(const CoreUtils::Packet& packet, [[maybe_unused]] int& return_value, [[maybe_unused]] bool& record, bool& record_last) {
 	const auto* pbuf = packet.data();

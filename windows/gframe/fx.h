@@ -57,6 +57,7 @@ public:
 	void Damage(int player, uint32_t amount);
 	void Recover(int player);
 	void Destroy(ClientCard* pcard);
+	void Activate(ClientCard* pcard);   // MD-style: glow ring + sparks around a card that activates
 	void Phase(uint16_t phase, bool my_turn);
 	int Turn(bool my_turn);
 	int LpFrames() const { return enabled ? 30 : 10; }

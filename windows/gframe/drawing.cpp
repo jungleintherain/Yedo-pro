@@ -362,9 +362,13 @@ void Game::DrawCard(ClientCard* pcard) {
 			const float e = dist > 2.5f ? (p < 0.5f ? 4 * p * p * p : 1 - std::pow(-2 * p + 2, 3.f) / 2) // in-out cubic
 											: 1 - std::pow(1 - p, 3.f);                                     // out cubic
 			pcard->curPos = pcard->startPos + pcard->movePos * e;
-			if(dist > 0.8f)
-				pcard->curPos.Z += std::sin(p * irr::core::PI) * std::min(0.5f, dist * 0.1f);
 			pcard->curRot = pcard->startRot + pcard->moveRot * e;
+			if(dist > 0.8f && !pcard->flat_move) {
+				// depth: the card rises towards the camera and tilts a little mid-flight
+				const float arc = std::sin(p * irr::core::PI);
+				pcard->curPos.Z += arc * std::min(0.7f, dist * 0.13f);
+				pcard->curRot.X += arc * std::min(0.22f, dist * 0.04f) * (pcard->controler == 0 ? -1.f : 1.f);
+			}
 			pcard->mTransform.setTranslation(pcard->curPos);
 			pcard->mTransform.setRotationRadians(pcard->curRot);
 		} else if(pcard->is_moving) {
@@ -379,6 +383,7 @@ void Game::DrawCard(ClientCard* pcard) {
 		if(pcard->aniFrame <= 0) {
 			pcard->aniFrame = 0;
 			pcard->eased = false;
+			pcard->flat_move = false;
 			pcard->is_moving = false;
 			pcard->is_fading = false;
 			if(std::exchange(pcard->refresh_on_stop, false))

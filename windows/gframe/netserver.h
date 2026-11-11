@@ -27,6 +27,7 @@ public:
 	static bool StartServer(uint16_t port);
 	static bool StartBroadcast();
 	static void StopServer();
+	static void ForceResult(uint8_t winner, uint8_t reason);   // YEdo tournament clock (runs on the server thread)
 	static void StopBroadcast();
 	static void StopListen();
 	static void BroadcastEvent(evutil_socket_t fd, short events, void* arg);

@@ -181,6 +181,16 @@ bool NetServer::StartBroadcast() {
 	event_add(broadcast_ev, nullptr);
 	return true;
 }
+void NetServer::ForceResult(uint8_t winner, uint8_t reason) {
+	if(!net_evbase)
+		return;
+	timeval tv{ 0, 1 };
+	event_base_once(net_evbase, -1, EV_TIMEOUT, [](evutil_socket_t, short, void* arg) {
+		const auto v = static_cast<uint16_t>(reinterpret_cast<uintptr_t>(arg));
+		if(duel_mode)
+			duel_mode->ForceResult(static_cast<uint8_t>(v & 0xff), static_cast<uint8_t>(v >> 8));
+	}, reinterpret_cast<void*>(static_cast<uintptr_t>(winner | (reason << 8))), &tv);
+}
 void NetServer::StopServer() {
 	if(!net_evbase)
 		return;

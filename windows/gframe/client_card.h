@@ -26,6 +26,7 @@ public:
 	irr::core::vector3df startPos, startRot, movePos, moveRot;
 	float moveTotal = 0, moveElapsed = 0;
 	bool eased = false;
+	bool flat_move = false;   // slide along the table (sent to the GY / banished by an effect), no arc
 	bool is_moving;
 	bool refresh_on_stop;
 	bool is_fading;

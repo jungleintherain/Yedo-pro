@@ -3131,7 +3131,7 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 		}
 		auto lock = LockIf();
 		gFx.NoteMove(current.controler, current.location, current.sequence, previous.location);
-		if(!mainGame->dInfo.isCatchingUp && (reason & REASON_DESTROY) && (previous.location & LOCATION_ONFIELD)
+		if(!mainGame->dInfo.isCatchingUp && (reason & REASON_DESTROY) && (reason & REASON_BATTLE) && (previous.location & LOCATION_ONFIELD)
 		   && previous.location != current.location && !(previous.location & LOCATION_OVERLAY))
 			gFx.Destroy(mainGame->dField.GetCard(previous.controler, previous.location, previous.sequence));
 		if (previous.location == 0) {
@@ -3217,16 +3217,22 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 								mainGame->dField.MoveCard(ocard, 10);
 							mainGame->WaitFrameSignal(10, lock);
 						}
+						const bool slide = (previous.location & LOCATION_ONFIELD) && (current.location & (LOCATION_GRAVE | LOCATION_REMOVED))
+							&& !(reason & REASON_BATTLE) && gFx.Active();
 						if (current.location == LOCATION_HAND) {
 							for (const auto& hcard : mainGame->dField.hand[current.controler])
 								mainGame->dField.MoveCard(hcard, 10);
+						} else if(slide) {
+							// Master Duel: an activated / used card is pulled flat along the table into the GY
+							mainGame->dField.MoveCard(pcard, 16);
+							pcard->flat_move = true;
 						} else
 							mainGame->dField.MoveCard(pcard, 10);
 						if(previous.location == LOCATION_HAND) {
 							for(const auto& hcard : mainGame->dField.hand[previous.controler])
 								mainGame->dField.MoveCard(hcard, 10);
 						}
-						mainGame->WaitFrameSignal(5, lock);
+						mainGame->WaitFrameSignal(slide ? 12 : 5, lock);
 					}
 				}
 			} else if (!(previous.location & LOCATION_OVERLAY)) {
@@ -3480,6 +3486,17 @@ int DuelClient::ClientAnalyze(const uint8_t* msg, uint32_t len) {
 				pcard->aniFrame = milliseconds;
 				mainGame->WaitFrameSignal(30, lock);
 				mainGame->dField.MoveCard(pcard, 5);
+			} else if((pcard->location & (LOCATION_MZONE | LOCATION_SZONE)) && gFx.Active()) {
+				// Master Duel style: the card lifts off the field, glows, then settles back
+				constexpr float lift_ms = 8.0f * 1000.0f / 60.0f;
+				pcard->dPos.set(0, 0, 0.45f / lift_ms);
+				pcard->dRot.set(0, 0, 0);
+				pcard->is_moving = true; pcard->eased = false;
+				pcard->aniFrame = lift_ms;
+				gFx.Activate(pcard);
+				mainGame->WaitFrameSignal(32, lock);
+				mainGame->dField.MoveCard(pcard, 8);
+				mainGame->WaitFrameSignal(8, lock);
 			} else
 				mainGame->WaitFrameSignal(30, lock);
 			pcard->is_highlighting = false;

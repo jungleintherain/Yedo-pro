@@ -68,6 +68,7 @@ struct StoryChapter {
 	std::wstring skill_label;   // opponent skill shown on the VS screen
 	uint32_t bot_skill = 0;     // story boss: skill card added to the bot deck
 	std::string kind = "story"; // story / roaming / campaign / sandbox (missions)
+	uint32_t time_limit_ms = 0;  // >0: duel clock (tournament) - at 0 the lower LP loses
 	int reward_gems = 0;        // extra first-clear gems (story.json "reward_gems")
 	bool speed = false;         // Duel Links style Speed Duel (3 zones, no MP2)
 	uint32_t start_lp = 8000;

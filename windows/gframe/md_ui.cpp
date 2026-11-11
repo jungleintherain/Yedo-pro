@@ -1,4 +1,5 @@
 #include "md_ui.h"
+#include "netserver.h"
 #include <cmath>
 #include <algorithm>
 #include <nlohmann/json.hpp>
@@ -915,7 +916,36 @@ void MdUi::DrawOverGui() {
 			}
 		}
 	}
+	DrawClock();
 	DrawSpeech();
+}
+
+void MdUi::DrawClock() {
+	// tournament clock: shown under the turn counter, at 0 the player with less LP loses (equal = draw)
+	if(!clock_deadline || !mainGame->dInfo.isInDuel || !gStory.IsActive())
+		return;
+	const uint32_t now = Now();
+	const int remain = clock_deadline > now ? static_cast<int>(clock_deadline - now) : 0;
+	const int W = static_cast<int>(mainGame->driver->getScreenSize().Width);
+	const int H = static_cast<int>(mainGame->driver->getScreenSize().Height);
+	const int sec = (remain + 999) / 1000;
+	const bool hurry = sec <= 60;
+	const int cx = W / 2, cy = static_cast<int>(H * 0.135f);
+	const int bw = static_cast<int>(H * 0.13f), bh = static_cast<int>(H * 0.04f);
+	const bool blink = hurry && ((now / 400) % 2 == 0);
+	Rect(recti(cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2), SColor(210, 20, 24, 40), SColor(210, 8, 10, 20));
+	const SColor edge = hurry ? SColor(255, 255, 80, 80) : SColor(255, 120, 170, 255);
+	mainGame->driver->draw2DRectangleOutline(recti(cx - bw / 2, cy - bh / 2, cx + bw / 2, cy + bh / 2), edge);
+	Text(mainGame->guiFont, epro::format(L"TIME {:02}:{:02}", sec / 60, sec % 60), cx, cy,
+		 blink ? SColor(255, 255, 255, 255) : (hurry ? SColor(255, 255, 110, 110) : SColor(255, 220, 235, 255)), 0, true);
+	if(remain == 0 && !clock_fired) {
+		clock_fired = true;
+		const int me = mainGame->dInfo.lp[0], opp = mainGame->dInfo.lp[1];
+		const uint8_t my_team = mainGame->dInfo.isTeam1 ? 0 : 1;
+		const uint8_t winner = me == opp ? 2 : (me > opp ? my_team : static_cast<uint8_t>(1 - my_team));
+		Speak(me == opp ? L"หมดเวลา! LP เท่ากัน - เสมอ" : (me > opp ? L"หมดเวลา! LP คุณมากกว่า - ชนะ!" : L"หมดเวลา! LP คุณน้อยกว่า - แพ้"));
+		NetServer::ForceResult(winner, 3);   // 3 = time limit
+	}
 }
 
 void MdUi::DrawVersus(float t) {
@@ -1141,6 +1171,8 @@ void MdUi::DrawSpeech() {
 /* -------------------------------------------------------------- triggers */
 
 void MdUi::ResetDuel() {
+	clock_deadline = 0;
+	clock_fired = false;
 	versus_shown = false;
 	overlay = Overlay::NONE;
 	speech.clear();
@@ -1165,6 +1197,10 @@ int MdUi::CoinToss(int outcome) {
 }
 
 int MdUi::DuelStart(bool going_first) {
+	clock_fired = false;
+	clock_deadline = 0;
+	if(gStory.IsActive() && gStory.DuelChapter().time_limit_ms > 0)
+		clock_deadline = Now() + 1700 + gStory.DuelChapter().time_limit_ms;
 	overlay = Overlay::START;
 	overlay_arg = going_first ? 1 : 0;
 	overlay_start = Now();

@@ -111,6 +111,9 @@ private:
 	// overlays
 	Overlay overlay = Overlay::NONE;
 	uint32_t overlay_start = 0, overlay_len = 1;
+	uint32_t clock_deadline = 0;   // tournament clock (campaign)
+	bool clock_fired = false;
+	void DrawClock();
 	int overlay_arg = 0;
 
 	// dialogue scene

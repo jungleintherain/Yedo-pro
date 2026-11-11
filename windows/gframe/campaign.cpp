@@ -81,6 +81,7 @@ void Campaign::LoadConfig() {
 		nlohmann::json j;
 		file >> j;
 		start_lives = j.value("lives", 3);
+		time_limit_min = std::max(0, j.value("time_limit_min", 15));
 		free_percent = j.value("free_deck_reward_percent", 30);
 		for(const auto& r : j.at("rounds")) {
 			Round rd;
@@ -398,6 +399,7 @@ void Campaign::StartDuel() {
 	SaveProgress();
 	mainGame->HideElement(wCampaign);
 	ch.kind = "campaign";
+	ch.time_limit_ms = static_cast<uint32_t>(time_limit_min) * 60000u;
 	ch.player_skill = prog.skill;
 	gStory.StartCustomDuel(ch, deck, wCampaign, [this](int result) { OnResult(result); });
 }

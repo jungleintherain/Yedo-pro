@@ -651,6 +651,17 @@ void DuelFx::Recover(int /*player*/) {
 	Flash(SColor(255, 90, 255, 140), 0.15f, 0.4f);
 }
 
+void DuelFx::Activate(ClientCard* pcard) {
+	if(!enabled || !pcard)
+		return;
+	vector3df p = pcard->curPos;
+	p.Z += 0.45f;
+	const vector2df at = Project(p);
+	Burst(at, SColor(255, 255, 220, 120), 22, 170, 10);
+	Burst(at, SColor(255, 140, 200, 255), 12, 90, 16);
+	Flash(SColor(255, 255, 235, 170), 0.10f, 0.25f);
+}
+
 void DuelFx::Destroy(ClientCard* pcard) {
 	if(!enabled || !pcard)
 		return;

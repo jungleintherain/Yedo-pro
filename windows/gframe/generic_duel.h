@@ -29,6 +29,7 @@ public:
 	void TPResult(DuelPlayer* dp, uint8_t tp) override;
 	void Process() override;
 	void Surrender(DuelPlayer* dp) override;
+	void ForceResult(uint8_t winner, uint8_t reason) override;
 	int Analyze(CoreUtils::Packet packet) override;
 	void GetResponse(DuelPlayer* dp, void* pdata, uint32_t len) override;
 	void TimeConfirm(DuelPlayer* dp) override;

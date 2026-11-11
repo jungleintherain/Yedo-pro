@@ -90,6 +90,7 @@ private:
 	std::map<std::string, std::vector<std::wstring>> pools;
 	std::map<std::wstring, std::wstring> boss_overrides;
 	int start_lives = 3;
+	int time_limit_min = 15;   // tournament clock per duel (campaign.json "time_limit_min", 0 = off)
 	int free_percent = 30;
 	Progress prog;
 	uint32_t rng = 0;

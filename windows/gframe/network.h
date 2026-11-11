@@ -241,6 +241,7 @@ public:
 	virtual void Process() = 0;
 	virtual int32_t Analyze(CoreUtils::Packet packet) = 0;
 	virtual void Surrender(DuelPlayer* dp) = 0;
+	virtual void ForceResult(uint8_t /*winner: 0/1 team, 2 draw*/, uint8_t /*reason*/) {}
 	virtual void GetResponse(DuelPlayer* dp, void* pdata, uint32_t len) = 0;
 	virtual void TimeConfirm(DuelPlayer* dp) = 0;
 	virtual void EndDuel() = 0;
