@@ -55,7 +55,7 @@ if not exist "%NDKDIR%\ndk-build.cmd" (
 rem ---- 4. game data -> APK assets
 echo  [4/6] Copying game data (cards, scripts, story, bots, music)...
 robocopy "%YEDO%" "%PROJ%\src\main\assets\defaults" /MIR /NFL /NDL /NJH /NJS /NP /R:1 /W:1 ^
-  /XD pics _android _update replay screenshots "Claude outputs" .git ^
+  /XD pics _android _update replay screenshots "Claude outputs" .git puzzles rush ^
   /XF *.exe *.dll *.pdb *.config *.bat *.lnk *.old system.conf error.log .edopro_lock save.json progress.json _story_boss.ydk >>"%LOG%" 2>&1
 if %ERRORLEVEL% GEQ 8 goto :fail
 powershell -NoProfile -ExecutionPolicy Bypass -File "%HERE%make-filelist.ps1" -Assets "%PROJ%\src\main\assets" >>"%LOG%" 2>&1 || goto :fail
