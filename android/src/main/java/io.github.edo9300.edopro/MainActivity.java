@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -209,7 +210,12 @@ public class MainActivity extends Activity {
 			case COPY_ASSETS: {
 				try {
 					var file = new File(getFilesDir(), "assets_copied");
-					if (file.exists() || file.createNewFile()) {
+					if (!yedoCopyComplete()) {
+						// copy interrupted (app left / screen off): do it again on the next start
+						if (file.exists() && !file.delete())
+							Log.e("EDOPro", "cannot reset assets_copied");
+						Toast.makeText(this, "YEdo: copying the game data was interrupted - it will continue on the next start", Toast.LENGTH_LONG).show();
+					} else if (file.exists() || file.createNewFile()) {
 						var wr = new FileWriter(file);
 						wr.write(apkStamp());
 						wr.flush();
@@ -535,6 +541,22 @@ public class MainActivity extends Activity {
 			return "yedo-" + info.lastUpdateTime;
 		} catch (Exception e) {
 			return "yedo-" + BuildConfig.VERSION_CODE;
+		}
+	}
+
+	/* YEdo Mod Pro: the copy is complete when the last file of the list reached the working folder */
+	private boolean yedoCopyComplete() {
+		try {
+			var reader = new BufferedReader(new InputStreamReader(getAssets().open("filelist.txt")));
+			String line, last = null;
+			while ((line = reader.readLine()) != null) {
+				if (!line.isEmpty())
+					last = line;
+			}
+			reader.close();
+			return last == null || new File(working_directory, last).exists();
+		} catch (Exception e) {
+			return true;
 		}
 	}
 

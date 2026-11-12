@@ -15,8 +15,22 @@ $rank = {
 	if ($top -eq 'script' -or $top -eq 'repositories') { return 50 }
 	return 20
 }
-$dirs = @($items | Where-Object { $_.PSIsContainer } | ForEach-Object { & $rel $_.FullName } | Sort-Object { $_.Split('/').Count }, { $_ })
-$files = @($items | Where-Object { -not $_.PSIsContainer } | ForEach-Object { & $rel $_.FullName } | Sort-Object { & $rank $_ }, { $_ })
+# aapt leaves these out of the APK (default ignoreAssetsPattern: .*, <dir>_*, *~, CVS, thumbs.db, picasa.ini, *.scc).
+# Listing one of them made the copier stop there, so everything after it never reached the phone.
+$packable = {
+	param($r, $isDir)
+	$parts = $r.Split('/')
+	for ($i = 0; $i -lt $parts.Count; $i++) {
+		$p = $parts[$i]
+		$isLast = ($i -eq $parts.Count - 1)
+		if ($p.StartsWith('.')) { return $false }
+		if ((-not $isLast -or $isDir) -and $p.StartsWith('_')) { return $false }
+		if ($p -match '^(CVS|thumbs\.db|picasa\.ini)$' -or $p -like '*.scc' -or $p.EndsWith('~')) { return $false }
+	}
+	return $true
+}
+$dirs = @($items | Where-Object { $_.PSIsContainer } | ForEach-Object { & $rel $_.FullName } | Where-Object { & $packable $_ $true } | Sort-Object { $_.Split('/').Count }, { $_ })
+$files = @($items | Where-Object { -not $_.PSIsContainer } | ForEach-Object { & $rel $_.FullName } | Where-Object { & $packable $_ $false } | Sort-Object { & $rank $_ }, { $_ })
 $all = @($dirs) + @($files)
 [System.IO.File]::WriteAllLines((Join-Path $Assets 'index.txt'), [string[]]$dirs, $enc)
 [System.IO.File]::WriteAllLines((Join-Path $Assets 'filelist.txt'), [string[]]$all, $enc)
