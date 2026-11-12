@@ -262,6 +262,14 @@ void RepoManager::CloneOrUpdateTask() {
 				git_repository_free(tmp);
 				return status == 0;
 			};
+			auto HasOfflineCopy = [](const std::string& p) {
+				bool any = false;
+				Utils::FindFiles(Utils::ToPathString(p), [&any](epro::path_stringview name, bool) {
+					if(name != EPRO_TEXT("."sv) && name != EPRO_TEXT(".."sv))
+						any = true;
+				});
+				return any;
+			};
 			auto AppendCommit = [](std::vector<std::string>& v, git_commit* commit) {
 				std::string message{ git_commit_message(commit) };
 				message.resize(message.find_last_not_of(" \n") + 1);
@@ -328,6 +336,9 @@ void RepoManager::CloneOrUpdateTask() {
 					history.partial_history.push_back(history.full_history.back());
 				} else
 					QueryFullHistory(repo.get(), walker.get());
+			} else if(HasOfflineCopy(path)) {
+				// YEdo Mod Pro: a repository shipped as plain files (the Android APK has no .git folders).
+				// Use it as it is: deleting it to download it again left the game without card scripts.
 			} else {
 				Utils::DeleteDirectory(Utils::ToPathString(path + "/"));
 				// git clone <url> <path>
