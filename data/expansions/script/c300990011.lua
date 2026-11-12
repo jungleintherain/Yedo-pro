@@ -63,6 +63,6 @@ function s.flipop(e,tp)
 	elseif op==2 then
 		use(tp,2)
 		outside(tp,46986414) --Dark Magician
-		if free(tp) then outside(tp,38033120) end --Dark Magician Girl
+		if free(tp) then outside(tp,38033121) end --Dark Magician Girl
 	end
 end
