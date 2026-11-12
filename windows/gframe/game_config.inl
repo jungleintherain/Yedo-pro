@@ -118,3 +118,4 @@ OPTION(bool, native_keyboard, false)
 OPTION(bool, native_mouse, false)
 #endif
 OPTION(bool, yedo_smooth, false)
+OPTION(bool, yedo_android_setup, false)

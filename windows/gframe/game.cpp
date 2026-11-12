@@ -109,6 +109,25 @@ void Game::Initialize() {
 	duel_param = gGameConfig->lastDuelParam;
 	if(!device)
 		device = GUIUtils::CreateDevice(gGameConfig);
+#if EDOPRO_ANDROID
+	// YEdo Mod Pro, first start on a phone: the YEdo windows are laid out on a 1024x640 grid
+	// (the biggest is ~884x570), so pick the UI scale that makes them fit the screen,
+	// and use the same skin as the Windows version (the default one has dark text on dark panels)
+	if(!gGameConfig->yedo_android_setup) {
+		gGameConfig->yedo_android_setup = true;
+		const auto ss = device->getVideoDriver()->getScreenSize();
+		const float W = static_cast<float>(std::max(ss.Width, ss.Height));
+		const float H = static_cast<float>(std::min(ss.Width, ss.Height));
+		if(W > 0.f && H > 0.f) {
+			float fit = std::min(W / 900.f, H / 585.f);
+			fit = std::floor(fit * 20.f) / 20.f;
+			gGameConfig->dpi_scale = std::max(1.f, std::min(2.5f, fit));
+		}
+		if(gGameConfig->skin == EPRO_TEXT("none"))
+			gGameConfig->skin = EPRO_TEXT("Purple - Obsessed");
+	}
+	dpi_scale = gGameConfig->dpi_scale;
+#endif
 #if !EDOPRO_ANDROID && !EDOPRO_IOS
 	device->enableDragDrop(true, [](irr::core::vector2di pos, bool isFile) ->bool {
 		if(isFile) {

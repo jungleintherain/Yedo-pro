@@ -2384,6 +2384,8 @@ void DuelWorld::StartRankDuel() {
 	const int tier = RankTier(save.rank_stage);
 	const auto* pool = gCampaign.Pool(RANK_POOLS[tier]);
 	std::vector<size_t> candidates;
+	if(mainGame->gBot.bots.empty())
+		mainGame->RefreshAiDecks();
 	const auto& bots = mainGame->gBot.bots;
 	if(pool)
 		for(const auto& name : *pool)

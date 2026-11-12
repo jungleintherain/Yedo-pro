@@ -276,6 +276,8 @@ std::wstring Campaign::CurrentPortrait() const {
 }
 
 void Campaign::Open() {
+	if(mainGame->gBot.bots.empty())
+		mainGame->RefreshAiDecks();
 	LoadConfig();
 	LoadProgress();
 	if(rounds.empty()) {

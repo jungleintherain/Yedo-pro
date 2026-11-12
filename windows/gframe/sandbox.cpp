@@ -112,6 +112,8 @@ void Sandbox::UpdateInfo() {
 }
 
 void Sandbox::Open() {
+	if(mainGame->gBot.bots.empty())
+		mainGame->RefreshAiDecks();   // bots.json may have been copied after the first load (Android first start)
 	Refresh();
 	if(mainGame->wMainMenu->isVisible())
 		mainGame->HideElement(mainGame->wMainMenu);
