@@ -285,6 +285,8 @@ private:
 	void WriteSave() const;
 	void ComputeRarities();
 	std::vector<uint32_t> ReadYdk(const std::string& path) const;
+	void WriteStructDeck(const StructDef& d);
+	bool RegrantStructCards();
 
 	// economy
 	uint32_t Today() const;

@@ -35,6 +35,11 @@ void DataHandler::LoadDatabases() {
 		if(dataManager->LoadDB(db))
 			WindBot::AddDatabase(db);
 	}
+	// YEdo Mod Pro: load the newer cards of the delta repository right away (it is loaded again when
+	// the repository update finishes). Without this, Duel World could start before those cards existed
+	// and Structure Decks / packs silently dropped them (e.g. Deep-Eyes White Dragon, Kaibaman the Legend).
+	for(auto& file : Utils::FindFiles(EPRO_TEXT("./repositories/delta-bagooska/"), { EPRO_TEXT("cdb") }, 0))
+		dataManager->LoadDB(EPRO_TEXT("./repositories/delta-bagooska/") + file);
 	LoadArchivesDB();
 }
 void DataHandler::LoadArchivesDB() {

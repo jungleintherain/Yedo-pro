@@ -1113,6 +1113,8 @@ void DuelWorld::Open() {
 		items.push_back(std::move(def));
 	}
 	LoadSave();
+	if(save.started && RegrantStructCards())
+		WriteSave();
 	if(!save.started) {
 		if(starters.empty()) {
 			mainGame->PopupMessage(L"ไม่พบข้อมูล Duel World (story/world/world.json)");
@@ -1967,6 +1969,62 @@ void DuelWorld::UpdateStructInfo() {
 	btnStructBuy->setEnabled(true);
 }
 
+void DuelWorld::WriteStructDeck(const StructDef& d) {
+	// copy the deck list (without skill cards) into the player's deck folder.
+	// Codes that are not loaded yet (cards from the delta repository) are kept: the deck editor
+	// shows them once their database is loaded.
+	FileStream in{ Utils::ToPathString(d.file), FileStream::in };
+	if(!in.good())
+		return;
+	std::string text, line;
+	while(std::getline(in, line)) {
+		while(!line.empty() && (line.back() == '\r' || line.back() == ' '))
+			line.pop_back();
+		if(!line.empty() && line[0] != '#' && line[0] != '!') {
+			try {
+				const auto code = static_cast<uint32_t>(std::stoul(line));
+				const auto* data = gDataManager->GetCardData(code);
+				if(data && (data->type & 0x8000000))
+					continue;
+			}
+			catch(...) {
+				continue;
+			}
+		}
+		text += line + "\n";
+	}
+	FileStream out{ epro::format(EPRO_TEXT("./deck/[Structure] {}.ydk"), Utils::ToPathString(d.name)), FileStream::out | FileStream::trunc };
+	out << text;
+}
+
+// YEdo: Structure Decks bought while some of their cards were not loaded yet (newer cards that only
+// exist in the delta repository database, e.g. Deep-Eyes White Dragon / Kaibaman the Legend) never
+// went into the collection. Cards are never removed from the collection, so every bought Structure
+// Deck card that is still missing is granted again (copies in the deck x times bought).
+bool DuelWorld::RegrantStructCards() {
+	bool changed = false;
+	for(const auto& d : structs) {
+		auto it = save.structs_bought.find(d.id);
+		if(it == save.structs_bought.end() || it->second <= 0)
+			continue;
+		std::map<uint32_t, int> need;
+		for(auto c : d.cards)
+			need[Key(c)]++;
+		bool fixed = false;
+		for(const auto& [key, n] : need) {
+			if(Owned(key) > 0)
+				continue;
+			AddCard(key, n * it->second);
+			fixed = true;
+		}
+		if(fixed) {
+			WriteStructDeck(d);
+			changed = true;
+		}
+	}
+	return changed;
+}
+
 void DuelWorld::BuyStruct() {
 	const int sel = lstStructs->getSelected();
 	if(sel < 0 || static_cast<size_t>(sel) >= structs.size())
@@ -1986,29 +2044,7 @@ void DuelWorld::BuyStruct() {
 			show.push_back({ c, RarityOf(c), is_new });
 	}
 	save.structs_bought[d.id]++;
-	// copy the deck list (without skill cards / unknown codes) into the player's deck folder
-	{
-		FileStream in{ Utils::ToPathString(d.file), FileStream::in };
-		std::string text, line;
-		while(std::getline(in, line)) {
-			while(!line.empty() && (line.back() == '\r' || line.back() == ' '))
-				line.pop_back();
-			if(!line.empty() && line[0] != '#' && line[0] != '!') {
-				try {
-					const auto code = static_cast<uint32_t>(std::stoul(line));
-					const auto* data = gDataManager->GetCardData(code);
-					if(!data || (data->type & 0x8000000))
-						continue;
-				}
-				catch(...) {
-					continue;
-				}
-			}
-			text += line + "\n";
-		}
-		FileStream out{ epro::format(EPRO_TEXT("./deck/[Structure] {}.ydk"), Utils::ToPathString(d.name)), FileStream::out | FileStream::trunc };
-		out << text;
-	}
+	WriteStructDeck(d);
 	AddWorldDeck(L"[Structure] " + d.name);
 	AddStat("structure_buy");
 	WriteSave();
