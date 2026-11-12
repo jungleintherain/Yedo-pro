@@ -126,6 +126,21 @@ void Game::Initialize() {
 		if(gGameConfig->skin == EPRO_TEXT("none"))
 			gGameConfig->skin = EPRO_TEXT("Purple - Obsessed");
 	}
+	// YEdo Mod Pro: music on like the Windows version (EDOPro starts with music off). Done once, so a
+	// player who turns it off in the settings keeps it off. The sound manager already exists here.
+	if(!gGameConfig->yedo_android_sound) {
+		gGameConfig->yedo_android_sound = true;
+		gGameConfig->enablemusic = true;
+		gGameConfig->enablesound = true;
+		gGameConfig->musicVolume = std::max(gGameConfig->musicVolume, 26);
+		gGameConfig->soundVolume = std::max(gGameConfig->soundVolume, 36);
+		if(gSoundManager) {
+			gSoundManager->SetMusicVolume(gGameConfig->musicVolume / 100.0);
+			gSoundManager->SetSoundVolume(gGameConfig->soundVolume / 100.0);
+			gSoundManager->EnableSounds(true);
+			gSoundManager->EnableMusic(true);
+		}
+	}
 	dpi_scale = gGameConfig->dpi_scale;
 #endif
 #if !EDOPRO_ANDROID && !EDOPRO_IOS

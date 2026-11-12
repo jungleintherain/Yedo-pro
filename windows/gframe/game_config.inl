@@ -119,3 +119,4 @@ OPTION(bool, native_mouse, false)
 #endif
 OPTION(bool, yedo_smooth, false)
 OPTION(bool, yedo_android_setup, false)
+OPTION(bool, yedo_android_sound, false)

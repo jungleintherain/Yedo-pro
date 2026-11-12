@@ -681,10 +681,18 @@ void DuelWorld::RefreshTraderIfNeeded(bool force) {
 
 void DuelWorld::RerollDuelists(bool all, int slot) {
 	const auto& chapters = gStory.Chapters();
+	// one entry per duelist (the story has the same opponent in several chapters): the unlocked ones,
+	// topped up with the next duelists of the story so a new player does not meet 6x the same person
 	std::vector<int> pool;
-	for(size_t i = 0; i < chapters.size(); i++)
-		if(gStory.ChapterUnlocked(i))
-			pool.push_back(static_cast<int>(i));
+	std::set<std::wstring> names;
+	const size_t want = static_cast<size_t>(roaming_slots) + 2;
+	for(size_t i = 0; i < chapters.size(); i++) {
+		if(!gStory.ChapterUnlocked(i) && names.size() >= want)
+			continue;
+		if(!names.insert(chapters[i].opponent).second)
+			continue;
+		pool.push_back(static_cast<int>(i));
+	}
 	if(pool.empty() && !chapters.empty())
 		pool.push_back(0);
 	save.duelists.resize(static_cast<size_t>(roaming_slots));
@@ -696,7 +704,7 @@ void DuelWorld::RerollDuelists(bool all, int slot) {
 			continue;
 		}
 		Duelist d;
-		for(int tries = 0; tries < 8; tries++) {
+		for(int tries = 0; tries < 24; tries++) {
 			d.chapter = pool[static_cast<size_t>(Rand(static_cast<int>(pool.size())))];
 			bool dup = false;
 			for(int o = 0; o < roaming_slots; o++)
@@ -1139,6 +1147,16 @@ void DuelWorld::Open() {
 	RefreshTraderIfNeeded(false);
 	ApplyAnimSpeed();
 	CheckSeason(true);
+	if(save.started) {
+		// old saves could have the same duelist in every slot: deal a new set
+		std::set<int> seen;
+		bool dup = false;
+		for(const auto& d : save.duelists)
+			if(d.chapter >= 0 && !seen.insert(d.chapter).second)
+				dup = true;
+		if(dup)
+			RerollDuelists(true);
+	}
 	RefreshHub();
 	mainGame->ShowElement(wHub);
 	if(LoginClaimable())
