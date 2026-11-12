@@ -211,8 +211,9 @@ public class MainActivity extends Activity {
 					var file = new File(getFilesDir(), "assets_copied");
 					if (file.exists() || file.createNewFile()) {
 						var wr = new FileWriter(file);
-						wr.write("" + BuildConfig.VERSION_CODE);
+						wr.write(apkStamp());
 						wr.flush();
+						wr.close();
 					}
 					if (wantsScopedStorage && data_directory != null && !data_directory.isEmpty()) {
 						var decksFolder = new File(working_directory, "deck");
@@ -526,55 +527,64 @@ public class MainActivity extends Activity {
 		setWorkingDir(dest_dir, null);
 	}
 
+	/* YEdo Mod Pro: identifies the installed APK, so a new YEdo APK installed over the old one
+	   copies the game data again (the version code never changes between YEdo builds) */
+	private String apkStamp() {
+		try {
+			var info = getPackageManager().getPackageInfo(getPackageName(), 0);
+			return "yedo-" + info.lastUpdateTime;
+		} catch (Exception e) {
+			return "yedo-" + BuildConfig.VERSION_CODE;
+		}
+	}
+
+	/* YEdo Mod Pro: start from zero once (player progress, settings and decks left by older builds) */
+	private void yedoFreshStart(String working_dir) {
+		var marker = new File(getFilesDir(), "yedo_fresh_1");
+		if (marker.exists())
+			return;
+		String[] files = {"story/world/save.json", "story/progress.json", "story/campaign/progress.json",
+				"story/campaign/_boss.ydk", "story/decks/_story_boss.ydk", "config/system.conf"};
+		for (var name : files) {
+			var f = new File(working_dir, name);
+			if (f.exists() && !f.delete())
+				Log.e("EDOPro", "fresh start: cannot delete " + f.getPath());
+		}
+		var decks = new File(working_dir, "deck").listFiles();
+		if (decks != null) {
+			for (var d : decks) {
+				if (d.isFile() && d.getName().endsWith(".ydk") && !d.delete())
+					Log.e("EDOPro", "fresh start: cannot delete " + d.getPath());
+			}
+		}
+		try {
+			if (!marker.createNewFile())
+				Log.e("EDOPro", "fresh start: cannot create marker");
+		} catch (Exception e) {
+			Log.e("EDOPro", "fresh start: " + e.getMessage());
+		}
+	}
+
 	public void copyAssetsPrompt(final String working_dir) {
 		changelog = false;
+		yedoFreshStart(working_dir);
+		copyCertificate();
+		String previous = null;
 		var file = new File(getFilesDir(), "assets_copied");
 		if (file.exists()) {
 			try {
 				var fileReader = new BufferedReader(new FileReader(file));
-				var line = fileReader.readLine();
-				int prevversion = Integer.parseInt(line);
-				if (prevversion < BuildConfig.VERSION_CODE) {
-					try {
-						copyCertificate();
-						//creates the empty assets_copied file
-						new PrintWriter(file).close();
-						Toast.makeText(this, getResources().getString(R.string.copying_update), Toast.LENGTH_LONG).show();
-						copyAssets(working_dir, true);
-					} catch (Exception ignored) {
-					}
-				} else
-					next();
-				return;
+				previous = fileReader.readLine();
+				fileReader.close();
 			} catch (Exception ignored) {
 			}
 		}
-		copyCertificate();
-		// YEdo Mod Pro: the game data must be copied on first start, so never ask
-		if (true) {
-			copyAssets(working_dir, false);
+		if (apkStamp().equals(previous)) {
+			next();
 			return;
 		}
-		new AlertDialog.Builder(this)
-				.setMessage(getResources().getString(R.string.assets_prompt))
-				.setNegativeButton("No", (dialog, id) -> {
-					try {
-						var file1 = new File(getFilesDir(), "assets_copied");
-						if (!file1.createNewFile()) {
-							Log.e("EDOPro", "error when creating assets_copied file");
-						} else {
-							var wr = (new FileWriter(file1));
-							wr.write("" + BuildConfig.VERSION_CODE);
-							wr.flush();
-						}
-					} catch (Exception e) {
-						Log.e("EDOPro", "error when creating assets_copied file: " + e.getMessage());
-					}
-					next();
-				})
-				.setPositiveButton("Yes", (dialog, id) -> copyAssets(working_dir, false))
-				.setCancelable(false)
-				.show();
+		// first start, or a new YEdo APK: copy the whole game data (player saves are not inside the APK)
+		copyAssets(working_dir, false);
 	}
 
 	public void copyCertificate() {
