@@ -152,7 +152,8 @@ public:
 	struct SkillDef {
 		uint32_t code = 0;
 		std::wstring name, name_en, desc, for_deck;
-		std::string tier;      // "", "legendary", "broken"
+		std::string tier;      // "", "legendary", "broken", "god", "special"
+		std::string from_struct;  // "special": owned while this Structure Deck is owned
 		int price = 0;
 		bool owned_default = false;
 	};
@@ -287,6 +288,7 @@ private:
 	std::vector<uint32_t> ReadYdk(const std::string& path) const;
 	void WriteStructDeck(const StructDef& d);
 	bool RegrantStructCards();
+	std::wstring StructName(const std::string& id) const;
 
 	// economy
 	uint32_t Today() const;

@@ -2043,7 +2043,12 @@ void DuelWorld::BuyStruct() {
 		if(seen.insert(Key(c)).second && RarityOf(c) >= Rarity::SR)
 			show.push_back({ c, RarityOf(c), is_new });
 	}
+	const bool first_buy = save.structs_bought[d.id] == 0;
 	save.structs_bought[d.id]++;
+	if(first_buy)
+		for(const auto& sk : Skills())
+			if(sk.from_struct == d.id)
+				Toast(epro::format(L"ได้รับสกิลพิเศษ \"{}\"! (ติดตั้งได้ที่เมนูสกิล)", sk.name));
 	WriteStructDeck(d);
 	AddWorldDeck(L"[Structure] " + d.name);
 	AddStat("structure_buy");
@@ -2144,7 +2149,7 @@ void DuelWorld::FillSkillCombo(irr::gui::IGUIComboBox* cb) {
 		for(const auto& sk : Skills()) {
 			if(!SkillOwned(sk.code))
 				continue;
-			const wchar_t* tier = sk.tier == "god" ? L"[เทพ] " : sk.tier == "legendary" ? L"[ตำนาน] " : sk.tier == "broken" ? L"[โกง] " : L"";
+			const wchar_t* tier = sk.tier == "god" ? L"[เทพ] " : sk.tier == "legendary" ? L"[ตำนาน] " : sk.tier == "broken" ? L"[โกง] " : sk.tier == "special" ? L"[พิเศษ] " : L"";
 			const auto idx = cb->addItem(epro::format(L"{}{} ({})", tier, sk.name, sk.name_en).data(), sk.code);
 			if(sk.code == save.equipped_skill)
 				cb->setSelected(static_cast<irr::s32>(idx));
@@ -2542,6 +2547,7 @@ void DuelWorld::LoadSkills() {
 			def.price = I(s, "price", 0);
 			def.owned_default = s.value("owned", false);
 			def.tier = S(s, "tier");
+			def.from_struct = S(s, "struct");
 			if(def.code)
 				skills.push_back(std::move(def));
 		}
@@ -2567,8 +2573,13 @@ bool DuelWorld::SkillOwned(uint32_t code) const {
 	if(save.skills.count(code))
 		return true;
 	for(const auto& s : skills)
-		if(s.code == code)
+		if(s.code == code) {
+			if(!s.from_struct.empty()) {
+				auto it = save.structs_bought.find(s.from_struct);
+				return it != save.structs_bought.end() && it->second > 0;
+			}
 			return s.owned_default;
+		}
 	return false;
 }
 
@@ -2589,6 +2600,13 @@ void DuelWorld::EquipSkill(uint32_t code) {
 	WriteSave();
 	RefreshSkills();
 	RefreshSkillCombos();
+}
+
+std::wstring DuelWorld::StructName(const std::string& id) const {
+	for(const auto& d : structs)
+		if(d.id == id)
+			return d.name;
+	return BufferIO::DecodeUTF8(id);
 }
 
 std::wstring DuelWorld::SkillInfoText(const SkillDef& s) {
@@ -3045,9 +3063,11 @@ void DuelWorld::RefreshSkills() {
 			tag = L"[ติดตั้งอยู่] ";
 		else if(SkillOwned(s.code))
 			tag = L"[มีแล้ว] ";
+		else if(!s.from_struct.empty())
+			tag = L"[จาก Structure] ";
 		else
 			tag = epro::format(L"[{} เพชร] ", Num(s.price));
-		const wchar_t* tier = s.tier == "god" ? L"[เทพ] " : s.tier == "legendary" ? L"★ตำนาน " : s.tier == "broken" ? L"[โกง] " : L"";
+		const wchar_t* tier = s.tier == "god" ? L"[เทพ] " : s.tier == "legendary" ? L"★ตำนาน " : s.tier == "broken" ? L"[โกง] " : s.tier == "special" ? L"◆พิเศษ " : L"";
 		const auto idx = lstSkills->addItem(epro::format(L"{}{}{}", tag, tier, s.name).data());
 		if(s.tier == "god")
 			lstSkills->setItemOverrideColor(idx, SColor(255, 255, 90, 70));
@@ -3055,6 +3075,8 @@ void DuelWorld::RefreshSkills() {
 			lstSkills->setItemOverrideColor(idx, SColor(255, 255, 205, 80));
 		else if(s.tier == "broken")
 			lstSkills->setItemOverrideColor(idx, SColor(255, 220, 140, 255));
+		else if(s.tier == "special")
+			lstSkills->setItemOverrideColor(idx, SColor(255, 90, 210, 255));
 	}
 	if(lstSkills->getItemCount() > 0)
 		lstSkills->setSelected(old >= 0 && static_cast<irr::u32>(old) < lstSkills->getItemCount() ? old : 0);
@@ -3072,13 +3094,18 @@ void DuelWorld::UpdateSkillInfo() {
 	const auto& s = list[static_cast<size_t>(sel)];
 	const bool owned = SkillOwned(s.code);
 	const auto* eq = FindSkill(save.equipped_skill);
-	const std::wstring unlock = owned ? std::wstring() : SkillUnlockText(s.code);
+	std::wstring unlock = owned ? std::wstring() : SkillUnlockText(s.code);
+	if(!owned && !s.from_struct.empty())
+		unlock = epro::format(L"ปลดล็อก: ซื้อ Structure Deck \"{}\" (ได้สกิลนี้ฟรี)", StructName(s.from_struct));
 	SetText(stSkill, epro::format(L"{}{}  ({})\nเหมาะกับ: {}\n\n{}\n{}\nสกิลที่ติดตั้งอยู่: {}\n(กดที่การ์ดสกิลบนสนามเพื่อใช้)",
-								  s.tier == "god" ? L"[สกิลเทพเจ้า] " : s.tier == "legendary" ? L"[สกิลตำนาน] " : s.tier == "broken" ? L"[สกิลโกง] " : L"",
+								  s.tier == "god" ? L"[สกิลเทพเจ้า] " : s.tier == "legendary" ? L"[สกิลตำนาน] " : s.tier == "broken" ? L"[สกิลโกง] " : s.tier == "special" ? L"[สกิลพิเศษ] " : L"",
 								  s.name, s.name_en, s.for_deck, s.desc, unlock.empty() ? L"" : L"\n" + unlock + L"\n",
 								  eq ? eq->name : std::wstring(L"ไม่มี")));
-	btnSkillEquip->setEnabled(s.code != save.equipped_skill);
-	btnSkillEquip->setText(owned ? L"ติดตั้งสกิล" : epro::format(L"ซื้อ + ติดตั้ง ({} เพชร)", Num(s.price)).data());
+	btnSkillEquip->setEnabled(s.code != save.equipped_skill && (owned || s.from_struct.empty()));
+	if(!owned && !s.from_struct.empty())
+		btnSkillEquip->setText(L"ได้จาก Structure Deck");
+	else
+		btnSkillEquip->setText(owned ? L"ติดตั้งสกิล" : epro::format(L"ซื้อ + ติดตั้ง ({} เพชร)", Num(s.price)).data());
 	btnSkillUnequip->setEnabled(save.equipped_skill != 0);
 }
 
@@ -3618,6 +3645,10 @@ bool DuelWorld::OnEvent(const irr::SEvent& event) {
 			if(sel < 0 || static_cast<size_t>(sel) >= list.size())
 				return true;
 			const auto& sk = list[static_cast<size_t>(sel)];
+			if(!SkillOwned(sk.code) && !sk.from_struct.empty()) {
+				Toast(epro::format(L"สกิลนี้ได้จากการซื้อ Structure Deck \"{}\"", StructName(sk.from_struct)));
+				return true;
+			}
 			if(!SkillOwned(sk.code)) {
 				if(save.gems < sk.price) {
 					Toast(epro::format(L"เพชรไม่พอ (ต้องการ {} มี {})", sk.price, Num(save.gems)));

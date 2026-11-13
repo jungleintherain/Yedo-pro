@@ -353,7 +353,7 @@ void Campaign::RefreshSkillCombo() {
 	cbSkill->clear();
 	cbSkill->addItem(L"ไม่ใช้สกิล", 0);
 	for(const auto& sk : gWorld.Skills()) {
-		const wchar_t* tier = sk.tier == "god" ? L"[เทพ] " : sk.tier == "legendary" ? L"[ตำนาน] " : sk.tier == "broken" ? L"[โกง] " : L"";
+		const wchar_t* tier = sk.tier == "god" ? L"[เทพ] " : sk.tier == "legendary" ? L"[ตำนาน] " : sk.tier == "broken" ? L"[โกง] " : sk.tier == "special" ? L"[พิเศษ] " : L"";
 		const auto idx = cbSkill->addItem(epro::format(L"{}{} ({})", tier, sk.name, sk.name_en).data(), sk.code);
 		if(sk.code == prog.skill)
 			cbSkill->setSelected(static_cast<irr::s32>(idx));
