@@ -8,18 +8,16 @@ local function flip(tp) Duel.Hint(HINT_SKILL_FLIP,tp,id|(1<<32)) Duel.Hint(HINT_
 local function ritfilter(c,e,tp)
 	return c:IsMonster() and c:IsType(TYPE_RITUAL) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,true,false)
 end
---(2) Level 8 Fusion/Synchro or Rank 8 Xyz Monster in the Extra Deck
+--(2) Level 8 or higher Fusion/Synchro Monster in the Extra Deck
 local function extype(c)
 	if c:IsType(TYPE_FUSION) then return SUMMON_TYPE_FUSION end
 	if c:IsType(TYPE_SYNCHRO) then return SUMMON_TYPE_SYNCHRO end
-	if c:IsType(TYPE_XYZ) then return SUMMON_TYPE_XYZ end
 	return nil
 end
 local function exfilter(c,e,tp)
 	local st=extype(c)
 	if not st then return false end
-	local lv8=(c:IsType(TYPE_XYZ) and c:IsRank(8)) or (not c:IsType(TYPE_XYZ) and c:IsLevel(8))
-	return lv8 and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and c:IsCanBeSpecialSummoned(e,st,tp,true,false)
+	return c:IsLevelAbove(8) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and c:IsCanBeSpecialSummoned(e,st,tp,true,false)
 end
 
 --banish the monster during the End Phase of turn number "turn"
