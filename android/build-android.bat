@@ -64,13 +64,17 @@ if exist "%AD%\deck" rmdir /s /q "%AD%\deck"
 mkdir "%AD%\deck"
 for %%D in ("puzzles" "script\rush" "WindBot\_backup_old" "replay" "screenshots" "pics" "story\_update") do if exist "%AD%\%%~D" rmdir /s /q "%AD%\%%~D"
 for %%F in ("story\world\save.json" "story\progress.json" "story\campaign\progress.json" "story\campaign\_boss.ydk" "story\decks\_story_boss.ydk" "config\system.conf" "WindBot\crash.log" "error.log") do if exist "%AD%\%%~F" del /f /q "%AD%\%%~F"
+rem card images: official ones are downloaded in-game (PICS_URL below); ship only YEdo's own custom images
+powershell -NoProfile -Command "$s='%YEDO%\pics'; $d='%AD%\pics'; if(Test-Path $s){ New-Item -ItemType Directory -Force $d | Out-Null; Get-ChildItem $s -File | Where-Object { $_.BaseName -notmatch '^\d{1,8}$' } | Copy-Item -Destination $d -Force }" >>"%LOG%" 2>&1
 powershell -NoProfile -ExecutionPolicy Bypass -File "%HERE%make-filelist.ps1" -Assets "%PROJ%\src\main\assets" >>"%LOG%" 2>&1 || goto :fail
 if not exist "%PROJ%\src\main\assets\filelist.txt" goto :fail
 
 rem ---- 5. native code
 echo  [5/6] Compiling the game for Android (10-30 minutes the first time)...
 pushd "%PROJ%"
-call "%NDKDIR%\ndk-build.cmd" -j%NUMBER_OF_PROCESSORS% >>"%LOG%" 2>&1
+rem card image download servers (same as the Windows build); touch the file that uses them so they get compiled in
+powershell -NoProfile -Command "(Get-Item '%PROJ%\deps\edopro\gframe\data_handler.cpp').LastWriteTime=Get-Date" >>"%LOG%" 2>&1
+call "%NDKDIR%\ndk-build.cmd" -j%NUMBER_OF_PROCESSORS% "PICS_URL=https://pics.projectignis.org:2096/pics/{}.jpg" "FIELDS_URL=https://pics.projectignis.org:2096/field/{}.png" "COVERS_URL=https://pics.projectignis.org:2096/pics/cover/{}.jpg" >>"%LOG%" 2>&1
 if errorlevel 1 (popd & goto :fail)
 
 rem ---- 6. APK
