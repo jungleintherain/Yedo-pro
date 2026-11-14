@@ -54,18 +54,11 @@ if not exist "%NDKDIR%\ndk-build.cmd" (
 
 rem ---- 4. game data -> APK assets
 echo  [4/6] Copying game data (cards, scripts, story, bots, music)...
-robocopy "%YEDO%" "%PROJ%\src\main\assets\defaults" /MIR /NFL /NDL /NJH /NJS /NP /R:1 /W:1 ^
-  /XD pics _android _update replay screenshots "Claude outputs" .git puzzles rush _backup_old "%YEDO%\deck" ^
-  /XF *.exe *.dll *.pdb *.config *.bat *.lnk *.old system.conf error.log .edopro_lock save.json progress.json _story_boss.ydk _boss.ydk crash.log >>"%LOG%" 2>&1
-if %ERRORLEVEL% GEQ 8 goto :fail
-rem fresh start: no player decks in the APK (Duel World gives the starter deck); drop leftovers of older builds
+call "%HERE%copy-data.bat" || goto :fail
 set "AD=%PROJ%\src\main\assets\defaults"
-if exist "%AD%\deck" rmdir /s /q "%AD%\deck"
-mkdir "%AD%\deck"
-for %%D in ("puzzles" "script\rush" "WindBot\_backup_old" "replay" "screenshots" "pics" "story\_update") do if exist "%AD%\%%~D" rmdir /s /q "%AD%\%%~D"
-for %%F in ("story\world\save.json" "story\progress.json" "story\campaign\progress.json" "story\campaign\_boss.ydk" "story\decks\_story_boss.ydk" "config\system.conf" "WindBot\crash.log" "error.log") do if exist "%AD%\%%~F" del /f /q "%AD%\%%~F"
-rem card images: official ones are downloaded in-game (PICS_URL below); ship only YEdo's own custom images
-powershell -NoProfile -Command "$s='%YEDO%\pics'; $d='%AD%\pics'; if(Test-Path $s){ New-Item -ItemType Directory -Force $d | Out-Null; Get-ChildItem $s -File | Where-Object { $_.BaseName -notmatch '^\d{1,8}$' } | Copy-Item -Destination $d -Force }" >>"%LOG%" 2>&1
+rem build id: the in-game updater only accepts patches made for this APK
+for /f %%T in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd-HHmmss"') do set "BUILDID=%%T"
+> "%AD%\config\yedo_build.txt" echo %BUILDID%
 powershell -NoProfile -ExecutionPolicy Bypass -File "%HERE%make-filelist.ps1" -Assets "%PROJ%\src\main\assets" >>"%LOG%" 2>&1 || goto :fail
 if not exist "%PROJ%\src\main\assets\filelist.txt" goto :fail
 
@@ -86,6 +79,9 @@ set "APK="
 for %%f in ("%PROJ%\build\outputs\apk\debug\*.apk") do set "APK=%%f"
 if not defined APK goto :fail
 copy /Y "%APK%" "%HERE%YEdo-Mod-Pro.apk" >nul
+rem remember what this APK contains, for make-patch.bat
+> "%HERE%apk-build-id.txt" echo %BUILDID%
+powershell -NoProfile -ExecutionPolicy Bypass -File "%HERE%make-patch.ps1" -Assets "%AD%" -Baseline "%HERE%apk-baseline.txt" -WriteBaseline >>"%LOG%" 2>&1
 echo BUILD OK>>"%LOG%"
 echo.
 echo  ===== DONE =====

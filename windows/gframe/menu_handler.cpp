@@ -11,6 +11,7 @@
 #include "game.h"
 #include "story_mode.h"
 #include "world.h"
+#include "yedo_patcher.h"
 #include "sandbox.h"
 #include "campaign.h"
 #include "server_lobby.h"
@@ -104,6 +105,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 	if(gCampaign.OnEvent(event))
 		return true;
 	if(gWorld.OnEvent(event))
+		return true;
+	if(gPatcher.OnEvent(event))
 		return true;
 	bool stopPropagation = false;
 	if(mainGame->dField.OnCommonEvent(event, stopPropagation))

@@ -136,6 +136,7 @@ LOCAL_SRC_FILES := $(GFRAME_PATH)/Android/COSAndroidOperator.cpp \
 				   $(GFRAME_PATH)/story_mode.cpp \
 				   $(GFRAME_PATH)/story_updater.cpp \
 				   $(GFRAME_PATH)/world.cpp \
+				   $(GFRAME_PATH)/yedo_patcher.cpp \
 				   $(GFRAME_PATH)/sandbox.cpp \
 				   $(GFRAME_PATH)/campaign.cpp
 

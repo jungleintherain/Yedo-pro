@@ -22,6 +22,7 @@
 #include "story_mode.h"
 #include "fx.h"
 #include "world.h"
+#include "yedo_patcher.h"
 #include "md_ui.h"
 #include "sandbox.h"
 #include "campaign.h"
@@ -298,7 +299,7 @@ void Game::Initialize() {
 	int mainMenuWidth = std::max(280, static_cast<int>(titleWidth / dpi_scale + 15));
 	mainMenuLeftX = 510 - mainMenuWidth / 2;
 	mainMenuRightX = 510 + mainMenuWidth / 2;
-	wMainMenu = env->addWindow(Scale(mainMenuLeftX, 200, mainMenuRightX, 485), false, L"YEdo Mod Pro");
+	wMainMenu = env->addWindow(Scale(mainMenuLeftX, 200, mainMenuRightX, 485 + (gPatcher.Enabled() ? 35 : 0)), false, L"YEdo Mod Pro");
 	wMainMenu->getCloseButton()->setVisible(false);
 	//wMainMenu->setVisible(!is_from_discord);
 #define OFFSET(x1, y1, x2, y2) Scale(10, 30 + offset, mainMenuWidth - 10, 60 + offset)
@@ -320,10 +321,15 @@ void Game::Initialize() {
 	btnDeckEdit = env->addButton(OFFSET(10, 135, 270, 165), wMainMenu, BUTTON_DECK_EDIT, gDataManager->GetSysString(1204).data());
 	defaultStrings.emplace_back(btnDeckEdit, 1204);
 	offset += 35;
+	if(gPatcher.Enabled()) {
+		gPatcher.btnMenu = env->addButton(OFFSET(10, 170, 270, 200), wMainMenu, BUTTON_YEDO_UPDATE, L"อัปเดตเกม (แพตช์)");
+		offset += 35;
+	}
 	btnModeExit = env->addButton(OFFSET(10, 170, 270, 200), wMainMenu, BUTTON_MODE_EXIT, gDataManager->GetSysString(1210).data());
 	defaultStrings.emplace_back(btnModeExit, 1210);
 	offset += 35;
 #undef OFFSET
+	gPatcher.Create();
 	//lan mode
 	wLanWindow = env->addWindow(Scale(220, 100, 800, 520), false, gDataManager->GetSysString(1200).data());
 	defaultStrings.emplace_back(wLanWindow, 1200);
@@ -2212,6 +2218,7 @@ bool Game::MainLoop() {
 		gUi.DrawMenuPortraits();
 		gFx.Draw2D();
 		gWorld.Draw2D();
+		gPatcher.Tick();
 		gUi.DrawOverGui();
 		if(cardimagetextureloading) {
 			ShowCardInfo(showingcard);
@@ -3720,7 +3727,7 @@ void Game::OnResize() {
 		stAbout->setRelativePosition(irr::core::recti(10, 10, minwidth, minheight));
 	}
 	wRoomListPlaceholder->setRelativePosition(irr::core::recti(0, 0, window_size.Width, window_size.Height));
-	wMainMenu->setRelativePosition(ResizeWin(mainMenuLeftX, 200, mainMenuRightX, 485));
+	wMainMenu->setRelativePosition(ResizeWin(mainMenuLeftX, 200, mainMenuRightX, 485 + (gPatcher.Enabled() ? 35 : 0)));
 	if(gStory.wStory) {
 		gStory.wStory->setRelativePosition(ResizeWin(160, 80, 860, 560));
 		gStory.wDialog->setRelativePosition(ResizeWin(110, 420, 910, 620));
