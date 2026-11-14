@@ -141,24 +141,87 @@
  "starters": [
   {
    "name": "Blue-Eyes",
-   "desc": "เด็คมังกรตาสีน้ำเงิน: มอนสเตอร์ไลท์มังกรพลังโจมตีสูง ฟิวชั่นเป็น Blue-Eyes Ultimate Dragon ได้ เล่นง่าย ตีแรง เหมาะกับคนชอบลุยตรงๆ",
+   "desc": "[Battle City] เด็คมังกรตาสีน้ำเงิน: มอนสเตอร์ไลท์มังกรพลังโจมตีสูง ฟิวชั่นเป็น Blue-Eyes Ultimate Dragon ได้ เล่นง่าย ตีแรง เหมาะกับคนชอบลุยตรงๆ",
    "file": "blueeyes.ydk",
    "cover": 89631139,
    "deck_name": "[Starter] Blue-Eyes"
   },
   {
    "name": "Dark Magician",
-   "desc": "เด็คจอมเวทย์ทมิฬ: ใช้เวทย์และกับดักคุมเกม พร้อมพิธีกรรม Magician of Black Chaos เหมาะกับคนชอบวางแผน",
+   "desc": "[Battle City] เด็คจอมเวทย์ทมิฬ: ใช้เวทย์และกับดักคุมเกม พร้อมพิธีกรรม Magician of Black Chaos เหมาะกับคนชอบวางแผน",
    "file": "darkmagician.ydk",
    "cover": 46986414,
    "deck_name": "[Starter] Dark Magician"
   },
   {
    "name": "Red-Eyes",
-   "desc": "เด็คมังกรตาแดง: เน้นทำดาเมจตรงและพลิกเกมด้วยฟิวชั่น เหมาะกับคนชอบเสี่ยงและเล่นเร็ว",
+   "desc": "[Battle City] เด็คมังกรตาแดง: เน้นทำดาเมจตรงและพลิกเกมด้วยฟิวชั่น เหมาะกับคนชอบเสี่ยงและเล่นเร็ว",
    "file": "redeyes.ydk",
    "cover": 74677422,
    "deck_name": "[Starter] Red-Eyes"
+  },
+  {
+   "name": "Elemental HERO",
+   "desc": "[GX] เด็คฮีโร่ธาตุของจูได: ฟิวชั่นฮีโร่หลายแบบ พลิกแพลงตามสถานการณ์ เหมาะกับคนชอบคอมโบฟิวชั่น",
+   "file": "elementalhero.ydk",
+   "cover": 20721928,
+   "deck_name": "[Starter] Elemental HERO"
+  },
+  {
+   "name": "Cyber Dragon",
+   "desc": "[GX] เด็คไซเบอร์ดราก้อนของเซน: เรียกเข้าสนามเร็ว ฟิวชั่นเป็น Cyber End Dragon ตีแรงจบเกมไว",
+   "file": "cyberdragon.ydk",
+   "cover": 70095154,
+   "deck_name": "[Starter] Cyber Dragon"
+  },
+  {
+   "name": "Stardust Synchro",
+   "desc": "[5D's] เด็คซิงโครของยูเซย์: Junk Synchron + จูนเนอร์ เรียก Stardust Dragon ปกป้องสนาม",
+   "file": "stardust.ydk",
+   "cover": 44508094,
+   "deck_name": "[Starter] Stardust Synchro"
+  },
+  {
+   "name": "Blackwing",
+   "desc": "[5D's] เด็คแบล็กวิงของโครว์: เรียกพิเศษต่อเนื่องจากมือ ซิงโครเป็นมังกรปีกดำ เล่นเร็ว",
+   "file": "blackwing.ydk",
+   "cover": 2009101,
+   "deck_name": "[Starter] Blackwing"
+  },
+  {
+   "name": "Utopia",
+   "desc": "[ZEXAL] เด็คโฮปของยูมะ: Gagaga จับคู่เลเวลเดียวกัน Xyz เป็น Number 39: Utopia",
+   "file": "utopia.ydk",
+   "cover": 84013237,
+   "deck_name": "[Starter] Utopia"
+  },
+  {
+   "name": "Shark",
+   "desc": "[ZEXAL] เด็คฉลามของชาร์ค: มอนสเตอร์น้ำเลเวลเท่ากัน Xyz เป็น Number ฉลามโจมตีหนัก",
+   "file": "shark.ydk",
+   "cover": 44223284,
+   "deck_name": "[Starter] Shark"
+  },
+  {
+   "name": "Odd-Eyes Pendulum",
+   "desc": "[ARC-V] เด็คเพนดูลัมของยูยะ: วางสเกลแล้ว Pendulum Summon ทีละหลายตัว ตัวหลัก Odd-Eyes Pendulum Dragon",
+   "file": "oddeyes.ydk",
+   "cover": 16178681,
+   "deck_name": "[Starter] Odd-Eyes Pendulum"
+  },
+  {
+   "name": "Code Talker",
+   "desc": "[VRAINS] เด็ค Cyberse ของเพลย์เมคเกอร์: ลิงก์ซัมมอนเป็น Code Talker หลายแบบ",
+   "file": "codetalker.ydk",
+   "cover": 86066372,
+   "deck_name": "[Starter] Code Talker"
+  },
+  {
+   "name": "Salamangreat",
+   "desc": "[VRAINS] เด็คซาลาแมงกรีทของโซลเบิร์นเนอร์: ไฟ Cyberse ชุบตัวเองและ Link ซ้ำได้ (Reincarnation)",
+   "file": "salamangreat.ydk",
+   "cover": 41463181,
+   "deck_name": "[Starter] Salamangreat"
   }
  ]
 }

@@ -14,6 +14,7 @@
 #include "file_stream.h"
 #include "bufferio.h"
 #include "utils.h"
+#include "deck_manager.h"
 #include "fmt.h"
 #include "story_mode.h"
 #include "world.h"
@@ -124,7 +125,7 @@ void Campaign::LoadProgress() {
 		nlohmann::json j;
 		file >> j;
 		prog.active = j.value("active", false);
-		prog.free_deck = j.value("free_deck", false);
+		prog.free_deck = false;
 		prog.round = j.value("round", 0);
 		prog.lives = j.value("lives", start_lives);
 		prog.best = j.value("best", 0);
@@ -287,12 +288,35 @@ void Campaign::Open() {
 	}
 	if(!prog.active || prog.opponents.size() != rounds.size())
 		NewRun();
-	mainGame->RefreshDeck(cbDeck);
-	for(irr::u32 i = 0; i < cbDeck->getItemCount(); i++)
-		if(gGameConfig->lastdeck == cbDeck->getItem(i))
-			cbDeck->setSelected(static_cast<irr::s32>(i));
+	FillDecks();
 	Refresh();
 	mainGame->ShowElement(wCampaign);
+}
+
+// campaign: every deck is allowed - the player's own decks, then every Structure Deck (borrowed for the duel)
+static constexpr auto CAMPAIGN_TEMP_DECK = L"_Campaign Deck";
+static constexpr auto BORROW_TAG = L"[ยืม] ";
+
+void Campaign::FillDecks() {
+	mainGame->RefreshDeck(cbDeck);
+	for(irr::u32 i = 0; i < cbDeck->getItemCount(); i++)
+		if(cbDeck->getItem(i) == std::wstring(CAMPAIGN_TEMP_DECK)) {
+			cbDeck->removeItem(i);
+			break;
+		}
+	std::vector<std::wstring> have;
+	for(irr::u32 i = 0; i < cbDeck->getItemCount(); i++)
+		have.emplace_back(cbDeck->getItem(i));
+	for(const auto& name : gWorld.AllStructDeckNames())
+		if(std::find(have.begin(), have.end(), name) == have.end())
+			cbDeck->addItem((BORROW_TAG + name).data());
+	const std::wstring want = last_pick.empty() ? std::wstring(gGameConfig->lastdeck) : last_pick;
+	cbDeck->setSelected(-1);
+	for(irr::u32 i = 0; i < cbDeck->getItemCount(); i++)
+		if(want == cbDeck->getItem(i))
+			cbDeck->setSelected(static_cast<irr::s32>(i));
+	if(cbDeck->getSelected() < 0 && cbDeck->getItemCount() > 0)
+		cbDeck->setSelected(0);
 }
 
 void Campaign::Refresh() {
@@ -321,8 +345,8 @@ void Campaign::Refresh() {
 	lstLadder->setSelected(n - 1 - std::min(prog.round, n - 1));
 	stHeader->setText(epro::format(L"ชีวิต {}    รอบ {}/{}    สถิติดีสุด: {} รอบ    เคลียร์: {} ครั้ง",
 								   Hearts(prog.lives, start_lives), std::min(prog.round + 1, n), n, prog.best, prog.clears).data());
-	chkFree->setChecked(prog.free_deck);
-	chkFree->setEnabled(prog.round == 0 && prog.lives == start_lives);
+	chkFree->setChecked(false);
+	chkFree->setVisible(false);
 	const int r = std::min(prog.round, n - 1);
 	const auto& rd = rounds[static_cast<size_t>(r)];
 	const auto name = CurrentOpponent();
@@ -344,7 +368,7 @@ void Campaign::Refresh() {
 	info += L"\n\nแพ้ = เสีย 1 ชีวิต (ดวลรอบเดิมใหม่ได้)\nชีวิตหมด = เริ่มใหม่จากรอบ 1";
 	stInfo->setText(info.data());
 	RefreshSkillCombo();
-	stSkill->setText(L"แคมเปญ: ใช้สกิลได้ทุกตัวฟรี (ไม่กระทบสกิลที่ติดตั้งใน Duel World)");
+	stSkill->setText(L"แคมเปญ: ใช้เด็คและสกิลได้ทุกอัน (รวม Structure Deck ทุกชุด) ได้รางวัลเต็ม");
 	btnDuel->setText(rd.boss ? L"ท้าดวลบอส!" : L"ดวล!");
 }
 
@@ -369,11 +393,18 @@ void Campaign::StartDuel() {
 		mainGame->PopupMessage(L"เลือกเด็คก่อน");
 		return;
 	}
-	if(prog.round == 0 && prog.lives == start_lives)
-		prog.free_deck = chkFree->isChecked();
-	const std::wstring deck = cbDeck->getItem(static_cast<irr::u32>(cbDeck->getSelected()));
-	if(!prog.free_deck && !gWorld.CheckDeckByName(deck))
-		return;
+	// campaign: every deck and every skill is unlocked, full rewards
+	prog.free_deck = false;
+	std::wstring deck = cbDeck->getItem(static_cast<irr::u32>(cbDeck->getSelected()));
+	last_pick = deck;
+	const std::wstring tag = BORROW_TAG;
+	if(deck.compare(0, tag.size(), tag) == 0) {
+		if(!gWorld.WriteStructDeckAs(deck.substr(tag.size()), CAMPAIGN_TEMP_DECK)) {
+			mainGame->PopupMessage(L"โหลด Structure Deck นี้ไม่ได้");
+			return;
+		}
+		deck = CAMPAIGN_TEMP_DECK;
+	}
 	const auto& rd = rounds[static_cast<size_t>(prog.round)];
 	const auto name = CurrentOpponent();
 	const int bi = BotIndex(name);
@@ -408,6 +439,9 @@ void Campaign::StartDuel() {
 
 void Campaign::OnResult(int result) {
 	const int n = static_cast<int>(rounds.size());
+	Utils::FileDelete(DeckManager::GetDeckPath(Utils::ToPathString(std::wstring(CAMPAIGN_TEMP_DECK))));
+	if(!last_pick.empty())
+		gGameConfig->lastdeck = last_pick;
 	if(result == 0) {
 		const auto& rd = rounds[static_cast<size_t>(prog.round)];
 		const int pct = prog.free_deck ? free_percent : 100;

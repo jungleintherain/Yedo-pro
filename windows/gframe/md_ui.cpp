@@ -497,6 +497,8 @@ void MdUi::Init() {
 	for(int id : { BUTTON_WORLD_STARTER_0, BUTTON_WORLD_STARTER_1, BUTTON_WORLD_STARTER_2, BUTTON_WORLD_STARTER_3 })
 		StyleButton(by_id(gWorld.wStarter, id), true);
 	StyleButton(by_id(gWorld.wStarter, BUTTON_WORLD_STARTER_BACK), false);
+	StyleButton(by_id(gWorld.wStarter, BUTTON_WORLD_STARTER_PREV), false);
+	StyleButton(by_id(gWorld.wStarter, BUTTON_WORLD_STARTER_NEXT), false);
 	StyleButton(by_id(gSandbox.wSandbox, BUTTON_SANDBOX_DUEL), true);
 	StyleButton(by_id(gCampaign.wCampaign, BUTTON_CAMPAIGN_DUEL), true);
 	StyleButton(by_id(gCampaign.wCampaign, BUTTON_CAMPAIGN_RESTART), false);

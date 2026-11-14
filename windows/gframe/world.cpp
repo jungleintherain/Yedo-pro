@@ -1088,6 +1088,35 @@ void DuelWorld::CreateGUI() {
 		btnStarters.push_back(env->addButton(mainGame->Scale(x, 430, x + 230, 470), wStarter, BUTTON_WORLD_STARTER_0 + static_cast<irr::s32>(i), L""));
 	}
 	env->addButton(mainGame->Scale(15, 478, 200, 510), wStarter, BUTTON_WORLD_STARTER_BACK, L"กลับ");
+	env->addButton(mainGame->Scale(420, 478, 570, 510), wStarter, BUTTON_WORLD_STARTER_PREV, L"< หน้าก่อน");
+	env->addButton(mainGame->Scale(580, 478, 730, 510), wStarter, BUTTON_WORLD_STARTER_NEXT, L"หน้าถัดไป >");
+}
+
+void DuelWorld::RefreshStarters() {
+	const size_t per = btnStarters.size();
+	const size_t pages = per ? std::max<size_t>(1, (starters.size() + per - 1) / per) : 1;
+	if(starter_page >= pages)
+		starter_page = 0;
+	SetText(stStarter, epro::format(L"ยินดีต้อนรับสู่ Duel World! เลือกเด็คแรกของคุณ 1 เด็ค การ์ดในเด็คจะเข้าคลังของคุณ "
+				L"และหลังจากนี้การ์ดที่ใช้ได้ทั้งเกมคือการ์ดที่คุณสะสมเท่านั้น   (หน้า {}/{} - มีให้เลือก {} เด็ค ทุกภาค)",
+				starter_page + 1, pages, starters.size()));
+	for(size_t i = 0; i < per; i++) {
+		const size_t idx = starter_page * per + i;
+		const bool has = idx < starters.size();
+		btnStarters[i]->setVisible(has);
+		imgStarters[i]->setVisible(has);
+		auto* desc = static_cast<irr::gui::IGUIStaticText*>(wStarter->getElementFromId(BUTTON_WORLD_STARTER_BACK + 1 + static_cast<irr::s32>(i)));
+		if(desc)
+			desc->setVisible(has);
+		if(!has)
+			continue;
+		btnStarters[i]->setText(epro::format(L"เลือก {}", starters[idx].name).data());
+		if(desc)
+			SetText(desc, starters[idx].desc);
+	}
+	for(int id : { BUTTON_WORLD_STARTER_PREV, BUTTON_WORLD_STARTER_NEXT })
+		if(auto* b = wStarter->getElementFromId(id))
+			b->setVisible(pages > 1);
 }
 
 void DuelWorld::Open() {
@@ -1113,29 +1142,19 @@ void DuelWorld::Open() {
 		items.push_back(std::move(def));
 	}
 	LoadSave();
-	if(save.started && RegrantStructCards())
-		WriteSave();
+	if(save.started) {
+		MigrateWorldDecks();
+		if(RegrantStructCards())
+			WriteSave();
+	}
 	if(!save.started) {
 		if(starters.empty()) {
 			mainGame->PopupMessage(L"ไม่พบข้อมูล Duel World (story/world/world.json)");
 			mainGame->ShowElement(mainGame->wMainMenu);
 			return;
 		}
-		SetText(stStarter, L"ยินดีต้อนรับสู่ Duel World! เลือกเด็คแรกของคุณ 1 เด็ค การ์ดในเด็คจะเข้าคลังของคุณ "
-				L"และหลังจากนี้การ์ดที่ใช้ได้ทั้งเกมคือการ์ดที่คุณสะสมเท่านั้น");
-		for(size_t i = 0; i < btnStarters.size(); i++) {
-			const bool has = i < starters.size();
-			btnStarters[i]->setVisible(has);
-			imgStarters[i]->setVisible(has);
-			auto* desc = static_cast<irr::gui::IGUIStaticText*>(wStarter->getElementFromId(BUTTON_WORLD_STARTER_BACK + 1 + static_cast<irr::s32>(i)));
-			if(desc)
-				desc->setVisible(has);
-			if(!has)
-				continue;
-			btnStarters[i]->setText(epro::format(L"เลือก {}", starters[i].name).data());
-			if(desc)
-				SetText(desc, starters[i].desc);
-		}
+		starter_page = 0;
+		RefreshStarters();
 		mainGame->ShowElement(wStarter);
 		return;
 	}
@@ -1197,7 +1216,7 @@ void DuelWorld::ChooseStarter(size_t index) {
 		std::string line;
 		while(std::getline(in, line))
 			text += line + "\n";
-		FileStream out{ epro::format(EPRO_TEXT("./deck/{}.ydk"), Utils::ToPathString(st.deck_name)), FileStream::out | FileStream::trunc };
+		FileStream out{ DeckManager::GetDeckPath(Utils::ToPathString(st.deck_name)), FileStream::out | FileStream::trunc };
 		out << text;
 	}
 	save.world_decks_known = true;
@@ -1969,7 +1988,55 @@ void DuelWorld::UpdateStructInfo() {
 	btnStructBuy->setEnabled(true);
 }
 
-void DuelWorld::WriteStructDeck(const StructDef& d) {
+std::wstring DuelWorld::StructDeckName(const StructDef& d) {
+	// deck file name: characters that cannot be in a file name (e.g. "D/D/D") become '-'
+	std::wstring name = L"[Structure] " + d.name;
+	for(auto& ch : name)
+		if(ch == L'/' || ch == L'\\' || ch == L':' || ch == L'*' || ch == L'?' || ch == L'"' || ch == L'<' || ch == L'>' || ch == L'|')
+			ch = L'-';
+	return name;
+}
+
+// Android: the deck folder is the user storage folder, not "./deck/" of the game data. Decks that
+// older versions wrote to "./deck/" (starter deck, Structure Decks) are moved to the real deck folder.
+void DuelWorld::MigrateWorldDecks() {
+	bool changed = false;
+	for(auto& file : Utils::FindFiles(EPRO_TEXT("./deck/"), { EPRO_TEXT("ydk") })) {
+		const auto dest = DeckManager::GetDeckPath(epro::path_stringview(file.data(), file.size() - 4));
+		if(Utils::FileExists(dest))
+			continue;
+		if(!Utils::FileCopy(epro::format(EPRO_TEXT("./deck/{}"), file), dest))
+			continue;
+		file.erase(file.size() - 4);
+		save.world_decks_known = true;
+		save.world_decks.insert(Utils::ToUnicodeIfNeeded(file));
+		changed = true;
+	}
+	if(changed)
+		WriteSave();
+}
+
+std::vector<std::wstring> DuelWorld::AllStructDeckNames() {
+	if(structs.empty())
+		LoadData();
+	std::vector<std::wstring> names;
+	for(const auto& d : structs)
+		names.push_back(StructDeckName(d));
+	return names;
+}
+
+bool DuelWorld::WriteStructDeckAs(const std::wstring& struct_deck_name, const std::wstring& out_name) {
+	if(structs.empty())
+		LoadData();
+	for(const auto& d : structs)
+		if(StructDeckName(d) == struct_deck_name) {
+			WriteStructDeck(d, out_name);
+			return Utils::FileExists(DeckManager::GetDeckPath(Utils::ToPathString(out_name)));
+		}
+	return false;
+}
+
+void DuelWorld::WriteStructDeck(const StructDef& d, const std::wstring& out_name) {
 	// copy the deck list (without skill cards) into the player's deck folder.
 	// Codes that are not loaded yet (cards from the delta repository) are kept: the deck editor
 	// shows them once their database is loaded.
@@ -1993,7 +2060,7 @@ void DuelWorld::WriteStructDeck(const StructDef& d) {
 		}
 		text += line + "\n";
 	}
-	FileStream out{ epro::format(EPRO_TEXT("./deck/[Structure] {}.ydk"), Utils::ToPathString(d.name)), FileStream::out | FileStream::trunc };
+	FileStream out{ DeckManager::GetDeckPath(Utils::ToPathString(out_name.empty() ? StructDeckName(d) : out_name)), FileStream::out | FileStream::trunc };
 	out << text;
 }
 
@@ -2010,7 +2077,9 @@ bool DuelWorld::RegrantStructCards() {
 		std::map<uint32_t, int> need;
 		for(auto c : d.cards)
 			need[Key(c)]++;
-		bool fixed = false;
+		bool fixed = !Utils::FileExists(DeckManager::GetDeckPath(Utils::ToPathString(StructDeckName(d))));
+		if(fixed)
+			AddWorldDeck(StructDeckName(d));
 		for(const auto& [key, n] : need) {
 			if(Owned(key) > 0)
 				continue;
@@ -2050,14 +2119,14 @@ void DuelWorld::BuyStruct() {
 			if(sk.from_struct == d.id)
 				Toast(epro::format(L"ได้รับสกิลพิเศษ \"{}\"! (ติดตั้งได้ที่เมนูสกิล)", sk.name));
 	WriteStructDeck(d);
-	AddWorldDeck(L"[Structure] " + d.name);
+	AddWorldDeck(StructDeckName(d));
 	AddStat("structure_buy");
 	WriteSave();
 	RefreshHub();
 	std::stable_sort(show.begin(), show.end(), [](const RevealCard& a, const RevealCard& b) { return a.rarity < b.rarity; });
 	if(show.size() > 8)
 		show.erase(show.begin(), show.begin() + static_cast<std::ptrdiff_t>(show.size() - 8));
-	ShowReveal(epro::format(L"ได้รับ {}!", d.name), epro::format(L"การ์ด {} ใบเข้าคลัง  |  เด็ค \"[Structure] {}\" พร้อมใช้", d.cards.size(), d.name), show);
+	ShowReveal(epro::format(L"ได้รับ {}!", d.name), epro::format(L"การ์ด {} ใบเข้าคลัง  |  เด็ค \"{}\" พร้อมใช้", d.cards.size(), StructDeckName(d)), show);
 }
 
 void DuelWorld::BuyFreePack() {
@@ -2097,7 +2166,7 @@ void DuelWorld::AddXp(int64_t xp, std::wstring& msg) {
 	save.xp += xp;
 	const int after = Level();
 	for(int lv = before + 1; lv <= after; lv++) {
-		const int gems = 30 + 5 * std::min(lv, 40);
+		const int gems = 1000;  // every level up: 1000 gems
 		save.gems += gems;
 		msg += epro::format(L"เลเวลอัป! Lv.{}  รางวัล เพชร +{}\n", lv, gems);
 		if(lv % 10 == 0) {
@@ -3309,8 +3378,8 @@ void DuelWorld::Draw2D() {
 		}
 	}
 	if(wStarter && wStarter->isTrulyVisible())
-		for(size_t i = 0; i < imgStarters.size() && i < starters.size(); i++)
-			draw_in(imgStarters[i], starters[i].cover);
+		for(size_t i = 0; i < imgStarters.size() && starter_page * imgStarters.size() + i < starters.size(); i++)
+			draw_in(imgStarters[i], starters[starter_page * imgStarters.size() + i].cover);
 
 	if(!reveal_active || reveals.empty())
 		return;
@@ -3629,8 +3698,16 @@ bool DuelWorld::OnEvent(const irr::SEvent& event) {
 		case BUTTON_WORLD_STARTER_1:
 		case BUTTON_WORLD_STARTER_2:
 		case BUTTON_WORLD_STARTER_3:
-			ChooseStarter(static_cast<size_t>(id - BUTTON_WORLD_STARTER_0));
+			ChooseStarter(starter_page * btnStarters.size() + static_cast<size_t>(id - BUTTON_WORLD_STARTER_0));
 			return true;
+		case BUTTON_WORLD_STARTER_PREV:
+		case BUTTON_WORLD_STARTER_NEXT: {
+			const size_t per = std::max<size_t>(1, btnStarters.size());
+			const size_t pages = std::max<size_t>(1, (starters.size() + per - 1) / per);
+			starter_page = (starter_page + (id == BUTTON_WORLD_STARTER_NEXT ? 1 : pages - 1)) % pages;
+			RefreshStarters();
+			return true;
+		}
 		case BUTTON_WORLD_STARTER_BACK:
 			mainGame->HideElement(wStarter);
 			mainGame->ShowElement(mainGame->wMainMenu);

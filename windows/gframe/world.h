@@ -99,6 +99,8 @@ enum WORLD_GUI {
 	BUTTON_WORLD_CD_CLOSE,
 	BUTTON_WORLD_PACK_LIST,
 	BUTTON_WORLD_STRUCT_LIST,
+	BUTTON_WORLD_STARTER_PREV,
+	BUTTON_WORLD_STARTER_NEXT,
 };
 
 enum class Rarity : uint8_t { N = 0, R = 1, SR = 2, UR = 3 };
@@ -158,6 +160,9 @@ public:
 		bool owned_default = false;
 	};
 	const std::vector<SkillDef>& Skills();
+	// campaign: every Structure Deck can be borrowed
+	std::vector<std::wstring> AllStructDeckNames();
+	bool WriteStructDeckAs(const std::wstring& struct_deck_name, const std::wstring& out_name);
 	const SkillDef* FindSkill(uint32_t code);
 	uint32_t EquippedSkill();                 // 0 = none (only when Duel World started)
 	bool SkillOwned(uint32_t code) const;
@@ -286,7 +291,9 @@ private:
 	void WriteSave() const;
 	void ComputeRarities();
 	std::vector<uint32_t> ReadYdk(const std::string& path) const;
-	void WriteStructDeck(const StructDef& d);
+	void WriteStructDeck(const StructDef& d, const std::wstring& out_name = L"");
+	static std::wstring StructDeckName(const StructDef& d);
+	void MigrateWorldDecks();
 	bool RegrantStructCards();
 	std::wstring StructName(const std::string& id) const;
 
@@ -500,6 +507,8 @@ private:
 	irr::gui::IGUIButton* btnSkillEquip = nullptr;
 	irr::gui::IGUIButton* btnSkillUnequip = nullptr;
 	std::vector<irr::gui::IGUIButton*> btnStarters;
+	size_t starter_page = 0;
+	void RefreshStarters();
 	std::vector<irr::gui::IGUIElement*> imgStarters;
 	irr::gui::IGUIStaticText* stStarter = nullptr;
 };

@@ -103,6 +103,8 @@ private:
 	irr::gui::IGUIStaticText* stSkill = nullptr;
 	irr::gui::IGUIComboBox* cbSkill = nullptr;
 	void RefreshSkillCombo();
+	void FillDecks();
+	std::wstring last_pick;
 	irr::gui::IGUIButton* btnDuel = nullptr;
 };
 

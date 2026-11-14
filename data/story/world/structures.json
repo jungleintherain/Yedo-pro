@@ -256,8 +256,8 @@
   {
    "id": "M_Branded",
    "cat": "meta",
-   "name": "Branded Despia",
-   "desc": "Branded: ฟิวชั่น Albaz และ Despia",
+   "name": "Dogmatika Invoked",
+   "desc": "Dogmatika + Invoked: ฟิวชั่นด้วย Aleister และ Super Polymerization",
    "file": "./WindBot/Decks/AI_Dragma.ydk",
    "price": 1500,
    "cover": 0
