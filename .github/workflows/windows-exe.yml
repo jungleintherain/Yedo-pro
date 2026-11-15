@@ -1,0 +1,62 @@
+name: Build YEdo Mod Pro (Windows exe)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'windows/gframe/**'
+      - 'windows/ocgcore/**'
+      - '.github/workflows/windows-exe.yml'
+permissions:
+  contents: write
+concurrency:
+  group: windows-exe
+  cancel-in-progress: true
+env:
+  DEPENDENCIES_BASE_URL: https://github.com/edo9300/edopro-vcpkg-cache/releases/latest/download
+jobs:
+  Windows:
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: bash
+        working-directory: windows
+    env:
+      TRAVIS_OS_NAME: windows
+      DXSDK_DIR: /c/d3d9sdk/
+      VCPKG_ROOT: /c/vcpkg2
+      BUILD_CONFIG: release
+      ARCH: x86
+      VS_GEN: vs2022
+      PICS_URL: https://pics.projectignis.org:2096/pics/{}.jpg
+      FIELDS_URL: https://pics.projectignis.org:2096/field/{}.png
+      COVERS_URL: https://pics.projectignis.org:2096/pics/cover/{}.jpg
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+    - name: Set custom env vars
+      run: echo "VCPKG_CACHE_ZIP_URL=$DEPENDENCIES_BASE_URL/installed_x86-windows-static.zip" >> $GITHUB_ENV
+    - name: Install premake
+      run: ./travis/install-premake5.sh
+    - name: Install dependencies
+      run: ./travis/dependencies.sh
+    - name: Build
+      run: ./travis/build.sh
+    - name: Package
+      run: |
+        mkdir -p package
+        ls bin/release || true
+        cp bin/release/ygoprodll.exe "package/YEdo-Mod-Pro.exe"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: YEdo-Mod-Pro-Windows
+        path: windows/package/
+    - name: Publish release (exe-latest)
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release delete exe-latest -y --cleanup-tag || true
+        gh release create exe-latest "package/YEdo-Mod-Pro.exe" --target "$GITHUB_SHA" --title "YEdo Mod Pro.exe (latest build)" --notes "Built from $GITHUB_SHA"
