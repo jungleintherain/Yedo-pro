@@ -235,7 +235,14 @@ void StoryMode::CreateGUI() {
 	wStory->setVisible(false);
 	lstChapters = env->addListBox(mainGame->Scale(10, 30, 320, 420), wStory, LISTBOX_STORY_CHAPTERS, true);
 	lstChapters->setItemHeight(mainGame->Scale(24));
-	stChapterInfo = env->addStaticText(L"", mainGame->Scale(330, 30, 690, 300), true, true, wStory);
+	stChapterInfo = env->addStaticText(L"", mainGame->Scale(330, 30, 690, 268), true, true, wStory);
+	env->addStaticText(L"ระดับ:", mainGame->Scale(330, 276, 395, 296), false, false, wStory);
+	cbLevel = env->addComboBox(mainGame->Scale(400, 272, 690, 297), wStory, COMBOBOX_STORY_LEVEL);
+	cbLevel->addItem(L"Easy (ปกติ)");
+	cbLevel->addItem(L"Hard (บอทมีสกิล, รางวัล x2)");
+	cbLevel->addItem(L"Expert (บอทใช้สกิลพิเศษของเด็ค, รางวัล x3)");
+	LoadLevel();
+	cbLevel->setSelected(level);
 	env->addStaticText(L"เด็คของคุณ (Your deck):", mainGame->Scale(330, 308, 690, 326), false, false, wStory);
 	cbPlayerDeck = env->addComboBox(mainGame->Scale(330, 328, 690, 353), wStory);
 	env->addStaticText(L"สกิล (Skill):", mainGame->Scale(330, 362, 690, 380), false, false, wStory);
@@ -258,6 +265,48 @@ void StoryMode::CreateGUI() {
 	stLine = env->addStaticText(L"", mainGame->Scale(15, 40, 785, 150), false, true, wDialog);
 	btnSkip = env->addButton(mainGame->Scale(560, 158, 670, 190), wDialog, BUTTON_STORY_DIALOG_SKIP, L"ข้าม (Skip)");
 	btnNext = env->addButton(mainGame->Scale(680, 158, 785, 190), wDialog, BUTTON_STORY_DIALOG_NEXT, L"ถัดไป ▶");
+}
+
+void StoryMode::LoadLevel() {
+	FileStream in{ EPRO_TEXT("./config/yedo_story_level.txt"), FileStream::in };
+	int v = 0;
+	if(in.good())
+		in >> v;
+	level = (v >= 0 && v <= 2) ? v : 0;
+}
+
+void StoryMode::SaveLevel() const {
+	FileStream out{ EPRO_TEXT("./config/yedo_story_level.txt"), FileStream::out | FileStream::trunc };
+	out << level << '\n';
+}
+
+// Hard: the bot gets a skill (its boss skill, or a generic one). Expert: the bot gets the special skill
+// that fits its deck (story/expert_skills.json), working by itself.
+StoryChapter StoryMode::WithLevel(const StoryChapter& ch) const {
+	StoryChapter out = ch;
+	if(level <= 0)
+		return out;
+	uint32_t hard = 300990068, expert = 300990069, matched = 0;
+	try {
+		FileStream in{ EPRO_TEXT("./story/expert_skills.json"), FileStream::in };
+		if(in.good()) {
+			const auto j = nlohmann::json::parse(in);
+			hard = j.value("default_hard", hard);
+			expert = j.value("default_expert", expert);
+			const std::string deck = BufferIO::EncodeUTF8(ch.deck);
+			if(j.contains("decks") && j["decks"].contains(deck))
+				matched = j["decks"][deck].get<uint32_t>();
+		}
+	} catch(...) {
+	}
+	if(level == 1) {
+		if(!out.bot_skill)
+			out.bot_skill = hard;
+	} else {
+		out.bot_skill = matched ? matched : (out.bot_skill ? out.bot_skill : expert);
+		out.difficulty = std::max(out.difficulty, 2);
+	}
+	return out;
 }
 
 void StoryMode::OpenMenu() {
@@ -320,6 +369,11 @@ void StoryMode::UpdateInfo() {
 	}
 	const auto& ch = chapters[sel];
 	std::wstring text = epro::format(L"{}\n\nคู่ต่อสู้: {}\nLP เริ่มต้น: {}\n", ch.title, ch.opponent, ch.start_lp);
+	if(level > 0) {
+		const auto lv = WithLevel(ch);
+		text += epro::format(L"ระดับ {}: บอทใช้สกิล \"{}\" - รางวัล x{}\n", level == 1 ? L"Hard" : L"Expert",
+							 lv.bot_skill ? gDataManager->GetName(lv.bot_skill) : L"-", level + 1);
+	}
 	if(!ch.source.empty())
 		text += epro::format(L"ที่มาของเด็ค: {}\n", ch.source);
 	text += L"\n" + ch.description;
@@ -423,7 +477,7 @@ bool StoryMode::OnEvent(const irr::SEvent& event) {
 			const bool first_clear = !IsCleared(chapters[sel]);
 			const size_t index = static_cast<size_t>(sel);
 			mainGame->HideElement(wStory);
-			StartCustomDuel(chapters[sel], player_deck, wStory, [this, index, first_clear](int result) {
+			StartCustomDuel(WithLevel(chapters[sel]), player_deck, wStory, [this, index, first_clear](int result) {
 				if(result == 0) {
 					cleared.insert(chapters[index].id);
 					SaveProgress();
@@ -450,6 +504,12 @@ bool StoryMode::OnEvent(const irr::SEvent& event) {
 		break;
 	}
 	case irr::gui::EGET_COMBO_BOX_CHANGED:
+		if(id == COMBOBOX_STORY_LEVEL) {
+			level = std::max(0, std::min(2, cbLevel->getSelected()));
+			SaveLevel();
+			UpdateInfo();
+			return true;
+		}
 		if(id == COMBOBOX_STORY_SKILL) {
 			gWorld.EquipFromCombo(cbSkill);
 			return true;

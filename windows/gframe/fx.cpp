@@ -421,7 +421,7 @@ int DuelFx::Summon(uint32_t code, ClientCard* pcard, SummonKind kind) {
 	return static_cast<int>(std::ceil(duration * 60.f)) + 2;
 }
 
-enum ATTACK_STYLE { ATK_DEFAULT, ATK_MAGIC, ATK_SHADOW, ATK_BEAM, ATK_SLASH, ATK_BOLTS, ATK_SLIFER, ATK_OBELISK, ATK_RA };
+enum ATTACK_STYLE { ATK_DEFAULT, ATK_MAGIC, ATK_SHADOW, ATK_BEAM, ATK_SLASH, ATK_BOLTS, ATK_SLIFER, ATK_OBELISK, ATK_RA, ATK_BREATH, ATK_CLAW };
 
 int DuelFx::AttackStyleOf(uint32_t code, SColor& color) const {
 	const auto* d = gDataManager->GetCardData(code);
@@ -451,7 +451,9 @@ int DuelFx::AttackStyleOf(uint32_t code, SColor& color) const {
 	const uint32_t r = d->race;
 	if(r & 0x2) return ATK_MAGIC;                                          // Spellcaster
 	if(r & (0x8 | 0x10 | 0x2000000)) return ATK_SHADOW;                    // Fiend, Zombie, Illusion
+	if((r & (0x2000 | 0x800000)) && d->attribute != 0x10) return ATK_BREATH;             // Dragon, Wyrm: breath
 	if(r & (0x2000 | 0x800000 | 0x40000 | 0x200000 | 0x400000 | 0x4)) return ATK_BEAM;   // Dragon, Wyrm, Sea Serpent, Divine, Fairy
+	if(r & (0x4000 | 0x8000 | 0x200 | 0x10000)) return ATK_CLAW;                        // Beast, Beast-Warrior, Winged Beast, Dinosaur
 	if(r & (0x20 | 0x1000000 | 0x1000 | 0x80 | 0x100000 | 0x40 | 0x20000)) return ATK_BOLTS; // Machine, Cyberse, Thunder, Pyro, Psychic, Aqua, Fish
 	if(r & (0x1 | 0x8000 | 0x4000 | 0x10000 | 0x200 | 0x800 | 0x80000 | 0x400 | 0x100)) return ATK_SLASH;
 	return ATK_DEFAULT;
@@ -482,7 +484,11 @@ int DuelFx::Attack(ClientCard* attacker, ClientCard* target, const vector3df& di
 	const vector3df to = target ? target->curPos : direct_pos;
 	SColor color;
 	const int style = AttackStyleOf(attacker->code, color);
-	const bool ranged = style == ATK_BEAM || style == ATK_BOLTS || style == ATK_SLIFER || style == ATK_RA;
+	const bool ranged = style == ATK_BEAM || style == ATK_BOLTS || style == ATK_SLIFER || style == ATK_RA || style == ATK_BREATH;
+	// ace monsters (gods, Level 7+ / Extra Deck monsters with 2500+ ATK) get a Master Duel-like cut-in
+	bool grand = style == ATK_SLIFER || style == ATK_OBELISK || style == ATK_RA;
+	if(const auto* d = gDataManager->GetCardData(attacker->code))
+		grand = grand || (d->attack >= 2500 && (d->level >= 7 || (d->type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK))));
 	float duration = 0.75f;
 	if(style == ATK_SLIFER || style == ATK_RA)
 		duration = 1.6f;
@@ -495,6 +501,7 @@ int DuelFx::Attack(ClientCard* attacker, ClientCard* target, const vector3df& di
 	if(gGameConfig->quick_animation)
 		duration *= 0.7f;
 	duration /= speed;
+	const float lead = grand ? (gGameConfig->quick_animation ? 0.45f : 0.7f) / speed : 0.f;
 	if(holograms) {
 		holos.erase(std::remove_if(holos.begin(), holos.end(), [&](const Hologram& h) {
 			return h.base.getDistanceFromSQ(from) < 0.05f;
@@ -504,17 +511,17 @@ int DuelFx::Attack(ClientCard* attacker, ClientCard* target, const vector3df& di
 		h.base = from;
 		h.lunge_to = ranged ? from : from + (to - from) * 0.82f;   // ranged attackers stay and shoot
 		h.color = color;
-		h.t = 0;
+		h.t = -lead;     // the hologram waits for the cut-in
 		h.duration = duration;
 		h.attack = true;
-		h.custom_impact = style != ATK_DEFAULT;
+		h.custom_impact = style != ATK_DEFAULT || grand;
 		holos.push_back(h);
 	} else if(style == ATK_DEFAULT) {
 		Burst(Project(to), color, 26, 260, 14);
 		Flash(SColor(255, 255, 255, 255), 0.35f, 0.2f);
 		Shake(0.07f, 0.3f);
 	}
-	if(style != ATK_DEFAULT) {
+	if(style != ATK_DEFAULT || grand) {
 		AttackFx a;
 		a.style = style;
 		a.from = from;
@@ -522,20 +529,80 @@ int DuelFx::Attack(ClientCard* attacker, ClientCard* target, const vector3df& di
 		a.color = color;
 		a.duration = duration;
 		a.direct = target == nullptr;
+		a.grand = grand;
+		a.code = attacker->code;
+		a.lead = lead;
+		a.t = -lead;
 		attacks.push_back(a);
 	}
-	// keep the duel waiting while beams are still flying
-	return ranged || style == ATK_OBELISK ? static_cast<int>(duration * 60.f * 0.9f) : 0;
+	// keep the duel waiting while beams are still flying / the cut-in plays
+	const int wait = ranged || style == ATK_OBELISK ? static_cast<int>(duration * 60.f * 0.9f) : 0;
+	return wait + static_cast<int>(lead * 60.f);
 }
 
 void DuelFx::UpdateAttacks(float dt) {
 	for(auto& a : attacks) {
 		const float before = a.t;
 		a.t += dt;
+		if(a.t < 0)
+			continue;   // cut-in still playing
 		const float k = a.duration / 0.75f;
 		const vector2df to2 = Project(a.to);
 		auto crossed = [&](float when) { return before < when && a.t >= when; };
+		// ace monsters: shockwave on the hit
+		if(a.grand && crossed(0.4f * a.duration)) {
+			Flash(SColor(255, 255, 255, 255), 0.55f, 0.35f);
+			Shake(0.2f, 0.6f);
+			Burst(to2, a.color, 50, 520, 18);
+			Smoke(to2, SColor(150, 60, 50, 40), 18, 55.f, 150.f, 1.2f);
+		}
 		switch(a.style) {
+		case ATK_BREATH: {
+			const float p = a.t / a.duration;
+			const vector2df from2 = Project(a.from + vector3df(0, 0, 0.75f));
+			if(p > 0.15f && p < 0.78f) {
+				// stream of flames from the mouth to the target
+				const float scale = mainGame->driver->getScreenSize().Height / 640.f;
+				const int n = 3 + static_cast<int>(dt * 220.f);
+				vector2df dir = to2 - from2;
+				const float dist = static_cast<float>(dir.getLength());
+				if(dist > 1)
+					dir /= dist;
+				for(int i = 0; i < n; i++) {
+					Particle pt;
+					const float spread = (Rand() - 0.5f) * 0.35f;
+					const vector2df dv{ dir.X - dir.Y * spread, dir.Y + dir.X * spread };
+					const float spd = dist * (1.6f + Rand() * 0.6f);
+					pt.pos = from2;
+					pt.vel = dv * spd;
+					pt.max_life = pt.life = 0.5f + Rand() * 0.15f;
+					pt.size = (18.f + Rand() * 20.f) * scale;
+					pt.color = Rand() < 0.35f ? SColor(255, 255, 240, 170) : a.color;
+					pt.additive = true;
+					pt.grow = 46.f * scale;
+					particles.push_back(pt);
+				}
+			}
+			if(crossed(0.32f * a.duration)) {
+				Burst(to2, a.color, 40, 380, 16);
+				Smoke(to2, SColor(170, 40, 20, 10), 16, 46.f, 110.f, 1.1f);
+				Flash(a.color, 0.3f, 0.3f);
+				Shake(0.11f, 0.5f);
+				a.impact_done = true;
+			}
+			if(p > 0.32f && p < 0.78f && Rand() < dt * 25.f)
+				Burst(to2, a.color, 3, 200, 12);
+			break;
+		}
+		case ATK_CLAW:
+			if(crossed(0.38f * k)) {
+				Burst(to2, SColor(255, 255, 255, 255), 18, 300, 11);
+				Burst(to2, a.color, 22, 260, 14);
+				Flash(SColor(255, 255, 230, 220), 0.25f, 0.15f);
+				Shake(0.09f, 0.3f);
+				a.impact_done = true;
+			}
+			break;
 		case ATK_MAGIC:
 		case ATK_SHADOW:
 		case ATK_SLASH:
@@ -618,10 +685,82 @@ void DuelFx::UpdateAttacks(float dt) {
 
 void DuelFx::DrawAttacks() {
 	const float scale = mainGame->driver->getScreenSize().Height / 640.f;
+	const auto ss = mainGame->driver->getScreenSize();
+	const float W = static_cast<float>(ss.Width), H = static_cast<float>(ss.Height);
 	for(const auto& a : attacks) {
+		if(a.grand && a.t < 0.15f) {
+			// Master Duel-like attack cut-in: dark screen, speed lines, the art slides in
+			const float q = Clamp01((a.t + a.lead) / std::max(0.01f, a.lead));   // 0..1 over the lead time
+			const float fade = a.t < 0 ? 1.f : 1.f - a.t / 0.15f;
+			mainGame->driver->draw2DRectangle(SColor(static_cast<irr::u32>(150 * fade * Clamp01(q * 5)), 0, 0, 0), irr::core::recti(0, 0, ss.Width, ss.Height));
+			for(int i = 0; i < 9; i++) {
+				const float y = H * (0.22f + i * 0.07f);
+				const float x = std::fmod(time * 2600.f * scale + i * 397.f, W * 1.6f) - W * 0.3f;
+				Beam({ x - W * 0.25f, y }, { x, y }, 5.f * scale, WithAlpha(a.color, 0.55f * fade));
+			}
+			const float slide = 1 - EaseOut(Clamp01(q / 0.35f));
+			const vector2df c{ W * 0.5f - slide * W * 0.7f, H * 0.46f };
+			const float ch = H * 0.62f, cw = ch * 0.697f;
+			DrawQuad(tRays, FULL_UV, c, { H * 1.3f, H * 1.3f }, time * 40.f, WithAlpha(a.color, 0.6f * fade), true);
+			DrawQuad(tGlow, FULL_UV, c, { cw * 2.f, ch * 1.5f }, 0, WithAlpha(a.color, 0.8f * fade), true);
+			auto* art = mainGame->imageManager.GetTextureCard(a.code, imgType::ART);
+			DrawQuad(art, FULL_UV, c, { cw, ch }, -4.f, SColor(static_cast<irr::u32>(255 * fade), 255, 255, 255), false);
+			if(q > 0.3f) {
+				const irr::core::ustring text(gDataManager->GetName(a.code));
+				auto* font = mainGame->lpcFont;
+				const auto dim = font->getDimensionustring(text);
+				const int y = static_cast<int>(H * 0.82f);
+				const int x = static_cast<int>(W * 0.5f - dim.Width / 2.f + (1 - EaseOut(Clamp01((q - 0.3f) / 0.3f))) * W * 0.3f);
+				const auto al = static_cast<irr::u32>(255 * fade);
+				font->drawustring(text, irr::core::recti(x + 3, y + 3, x + dim.Width + 3, y + dim.Height + 3), SColor(al, 0, 0, 0));
+				font->drawustring(text, irr::core::recti(x, y, x + dim.Width, y + dim.Height), SColor(al, 255, 240, 200));
+			}
+			if(a.t < 0)
+				continue;
+		}
+		if(a.t < 0)
+			continue;
 		const float p = a.t / a.duration;
 		const vector2df to2 = Project(a.to);
+		if(a.grand) {
+			// shockwave rings after the hit
+			const float s = (p - 0.4f) / 0.4f;
+			if(s > 0 && s < 1)
+				for(int i = 0; i < 2; i++) {
+					const float r = (80.f + 600.f * EaseOut(Clamp01(s - i * 0.15f))) * scale;
+					DrawQuad(tRing, FULL_UV, to2, { r, r * 0.6f }, 0, WithAlpha(a.color, (1 - s) * 0.9f), true);
+				}
+		}
 		switch(a.style) {
+		case ATK_BREATH: {
+			if(p < 0.15f || p > 0.8f)
+				break;
+			const vector2df from2 = Project(a.from + vector3df(0, 0, 0.75f));
+			const float fade = 1 - Clamp01((p - 0.65f) / 0.15f);
+			const vector2df d = to2 - from2;
+			const float len = static_cast<float>(d.getLength());
+			const float ang = std::atan2(d.Y, d.X) * 180.f / PI;
+			// soft cone under the particles
+			DrawQuad(tBeam, FULL_UV, (from2 + to2) * 0.5f, { 120.f * scale, len }, ang + 90.f, WithAlpha(a.color, 0.45f * fade), true);
+			DrawQuad(tGlow, FULL_UV, from2, { 90.f * scale, 90.f * scale }, 0, WithAlpha(SColor(255, 255, 240, 180), 0.9f * fade), true);
+			if(p > 0.3f)
+				DrawQuad(tGlow, FULL_UV, to2, { 220.f * scale, 220.f * scale }, 0, WithAlpha(a.color, 0.8f * fade), true);
+			break;
+		}
+		case ATK_CLAW: {
+			const float impact = 0.38f / 0.75f;
+			for(int i = 0; i < 3; i++) {
+				const float s = (p - impact - i * 0.04f) / 0.32f;
+				if(s < 0 || s > 1)
+					continue;
+				const float alpha = 1 - Clamp01((s - 0.5f) / 0.5f);
+				const vector2df off{ (i - 1) * 26.f * scale, (i - 1) * -8.f * scale };
+				const float l = (40.f + 170.f * EaseOut(s * 2.f)) * scale;
+				DrawQuad(tLine, FULL_UV, to2 + off, { l, 20.f * scale }, 62.f, WithAlpha(a.color, 0.75f * alpha), true);
+				DrawQuad(tLine, FULL_UV, to2 + off, { l, 6.f * scale }, 62.f, SColor(static_cast<irr::u32>(255 * alpha), 255, 255, 255), true);
+			}
+			break;
+		}
 		case ATK_BEAM:
 		case ATK_SLIFER:
 		case ATK_RA: {
@@ -688,6 +827,20 @@ void DuelFx::DrawAttacks() {
 			for(float ang : { -38.f, 32.f }) {
 				DrawQuad(tLine, FULL_UV, to2, { len, 26.f * scale }, ang, WithAlpha(a.color, 0.7f * alpha), true);
 				DrawQuad(tLine, FULL_UV, to2, { len, 8.f * scale }, ang, SColor(static_cast<irr::u32>(255 * alpha), 255, 255, 255), true);
+			}
+			// crescent of the sword swing
+			{
+				const float R = 120.f * scale;
+				const float sweep = 150.f * EaseOut(Clamp01(s * 2.5f));
+				const int segs = 12;
+				for(int i = 0; i < segs; i++) {
+					const float t0 = -160.f + sweep * i / segs, t1 = -160.f + sweep * (i + 1) / segs;
+					const vector2df p0 = to2 + vector2df{ std::cos(t0 * PI / 180.f) * R, std::sin(t0 * PI / 180.f) * R * 0.7f };
+					const vector2df p1 = to2 + vector2df{ std::cos(t1 * PI / 180.f) * R, std::sin(t1 * PI / 180.f) * R * 0.7f };
+					const float w = (6.f + 16.f * std::sin(PI * (i + 0.5f) / segs)) * scale;
+					Beam(p0, p1, w, WithAlpha(a.color, 0.8f * alpha));
+					Beam(p0, p1, w * 0.35f, SColor(static_cast<irr::u32>(230 * alpha), 255, 255, 255));
+				}
 			}
 			break;
 		}

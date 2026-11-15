@@ -219,6 +219,10 @@ private:
 		std::vector<uint32_t> cards;
 		std::vector<uint32_t> by_rarity[4];
 		std::vector<uint32_t> featured;
+		int size = 0;           // cards per pack (0 = default pack_size)
+		int ur_min = 0, ur_max = 0;  // guaranteed UR count range (mega packs)
+		bool unique = false;    // no card twice in one pack
+		int64_t price_gold = 0; // can also be bought with gold
 	};
 	struct StructDef {
 		std::string id, cat, file;

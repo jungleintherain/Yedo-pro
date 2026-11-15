@@ -1,0 +1,11 @@
+{
+ "_comment": "Expert story bots: deck file -> automatic skill (others use 300990069)",
+ "decks": {
+  "aster.ydk": 300990157,
+  "crow.ydk": 300990151,
+  "rift_king.ydk": 300990145,
+  "zane.ydk": 300990150
+ },
+ "default_hard": 300990068,
+ "default_expert": 300990069
+}

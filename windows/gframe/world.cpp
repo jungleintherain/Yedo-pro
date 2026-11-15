@@ -286,6 +286,11 @@ void DuelWorld::LoadData() {
 			def.cover = static_cast<uint32_t>(I(it, "cover", 0));
 			def.cat = S(it, "cat", "main");
 			def.tag = W(it, "tag");
+			def.size = std::max(0, std::min(40, I(it, "size", 0)));
+			def.ur_min = I(it, "ur_min", 0);
+			def.ur_max = std::max(def.ur_min, I(it, "ur_max", def.ur_min));
+			def.unique = it.value("unique", false);
+			def.price_gold = I(it, "price_gold", 0);
 			if(it.contains("cards"))
 				for(const auto& c : it["cards"]) {
 					const auto code = c.get<uint32_t>();
@@ -732,6 +737,47 @@ std::vector<DuelWorld::RevealCard> DuelWorld::OpenPack(const PackDef& pack) {
 		return 0;
 	};
 	const int total = rates[0] + rates[1] + rates[2] + rates[3];
+	if(pack.size > 0) {
+		// mega pack: `size` different cards, ur_min..ur_max of them UR
+		std::set<uint32_t> taken;
+		auto pick_unique = [&](int r) -> uint32_t {
+			for(int pass = 0; pass < 2; pass++)
+				for(int k = r; k >= 0 && k < 4; k += (pass == 0 ? -1 : 1)) {
+					std::vector<uint32_t> left;
+					for(auto c : pack.by_rarity[k])
+						if(!taken.count(c))
+							left.push_back(c);
+					if(!left.empty())
+						return left[static_cast<size_t>(Rand(static_cast<int>(left.size())))];
+					if(pass == 1 && k == 3)
+						break;
+				}
+			return 0;
+		};
+		const int urs = pack.ur_min + Rand(pack.ur_max - pack.ur_min + 1);
+		const int rest_total = std::max(1, rates[0] + rates[1] + rates[2]);
+		for(int i = 0; i < pack.size; i++) {
+			int r = 3;
+			if(i >= urs) {
+				int roll = Rand(rest_total);
+				r = 0;
+				while(r < 2 && roll >= rates[r]) {
+					roll -= rates[r];
+					r++;
+				}
+			}
+			const uint32_t code = pack.unique ? pick_unique(r) : pick(r);
+			if(!code)
+				continue;
+			taken.insert(code);
+			const bool is_new = Owned(code) == 0;
+			AddCard(code);
+			out.push_back({ code, RarityOf(code), is_new });
+		}
+		std::stable_sort(out.begin(), out.end(), [](const RevealCard& a, const RevealCard& b) { return a.rarity < b.rarity; });
+		save.packs_opened++;
+		return out;
+	}
 	for(int i = 0; i < pack_size; i++) {
 		int r;
 		if(i == pack_size - 1) {
@@ -1364,12 +1410,23 @@ void DuelWorld::UpdatePackInfo() {
 	const int total = rates[0] + rates[1] + rates[2] + rates[3];
 	auto pct = [total](int v) { return total ? v * 100.f / total : 0.f; };
 	featPackCodes = p.featured;
+	if(p.size > 0) {
+		SetText(stPack, epro::format(L"{}\n{}\n\nการ์ด {} แบบ (UR {} / SR {} / R {} / N {})\n1 ซอง = {} ใบ ไม่ซ้ำกัน, UR {}-{} ใบแน่นอน\n"
+									 L"ราคา: {} เพชร หรือ {} ทอง",
+									 p.name, p.desc, p.cards.size(), p.by_rarity[3].size(), p.by_rarity[2].size(), p.by_rarity[1].size(),
+									 p.by_rarity[0].size(), p.size, p.ur_min, p.ur_max, Num(p.price), Num(p.price_gold)));
+	} else
 	SetText(stPack, epro::format(L"{}\n{}\n\nการ์ด {} แบบ (UR {} / SR {} / R {} / N {})\n1 ซอง = {} ใบ (ใบสุดท้าย SR+ แน่นอน)\n"
 								 L"อัตรา: N {:.0f}% R {:.0f}% SR {:.0f}% UR {:.0f}%   ราคา: {} เพชร",
 								 p.name, p.desc, p.cards.size(), p.by_rarity[3].size(), p.by_rarity[2].size(), p.by_rarity[1].size(),
 								 p.by_rarity[0].size(), pack_size, pct(rates[0]), pct(rates[1]), pct(rates[2]), pct(rates[3]), p.price));
 	btnBuy1->setText(epro::format(L"ซื้อ 1 ซอง ({} เพชร)", p.price).data());
-	btnBuy10->setText(epro::format(L"ซื้อ 10 ซอง ({} เพชร)", p.price * 10).data());
+	if(p.price_gold > 0)
+		btnBuy10->setText(epro::format(L"ซื้อด้วยทอง ({} ทอง)", Num(p.price_gold)).data());
+	else if(p.size > 0)
+		btnBuy10->setText(L"-");
+	else
+		btnBuy10->setText(epro::format(L"ซื้อ 10 ซอง ({} เพชร)", p.price * 10).data());
 	btnBuy1->setEnabled(true);
 	btnBuy10->setEnabled(true);
 }
@@ -1448,12 +1505,24 @@ void DuelWorld::BuyPacks(int count) {
 	if(sel < 0 || static_cast<size_t>(sel) >= packs.size())
 		return;
 	const auto& p = packs[static_cast<size_t>(sel)];
-	const int64_t cost = static_cast<int64_t>(p.price) * count;
-	if(save.gems < cost) {
-		Toast(epro::format(L"เพชรไม่พอ (ต้องการ {} มี {})", Num(cost), Num(save.gems)));
-		return;
+	if(p.price_gold > 0 && count == 10) {
+		// mega pack: the second button buys one pack with gold
+		count = 1;
+		if(save.gold < p.price_gold) {
+			Toast(epro::format(L"ทองไม่พอ (ต้องการ {} มี {})", Num(p.price_gold), Num(save.gold)));
+			return;
+		}
+		save.gold -= p.price_gold;
+	} else {
+		if(p.size > 0)
+			count = 1;
+		const int64_t cost = static_cast<int64_t>(p.price) * count;
+		if(save.gems < cost) {
+			Toast(epro::format(L"เพชรไม่พอ (ต้องการ {} มี {})", Num(cost), Num(save.gems)));
+			return;
+		}
+		save.gems -= cost;
 	}
-	save.gems -= cost;
 	for(int i = 0; i < count; i++)
 		ShowReveal(count > 1 ? epro::format(L"{} ({}/{})", p.name, i + 1, count) : p.name, L"", OpenPack(p));
 	AddStat("pack_open", count);
@@ -1532,18 +1601,23 @@ void DuelWorld::OnStoryResult(const StoryChapter& ch, size_t /*chapter_index*/, 
 	const std::string deck_file = BufferIO::EncodeUTF8(ch.deck);
 	if(result == 0) {
 		save.wins++;
-		const int gems = first_clear ? story_first_gems + ch.reward_gems : story_repeat_gems;
-		const int gold = first_clear ? story_first_gold : story_repeat_gold;
+		// story difficulty: Hard x2, Expert x3 (and Expert always gives a card, one more on first clear)
+		const int mul = 1 + gStory.Level();
+		const int gems = (first_clear ? story_first_gems + ch.reward_gems : story_repeat_gems) * mul;
+		const int gold = (first_clear ? story_first_gold : story_repeat_gold) * mul;
 		save.gems += gems;
 		save.gold += gold;
 		sub = epro::format(L"ทอง +{}   เพชร +{}", Num(gold), gems);
-		if(first_clear || Rand(100) < 50) {
-			const auto code = RandomCardFromDeck(deck_file, first_clear);
+		const int drops = (first_clear || gStory.Level() >= 2 || Rand(100) < 50 + 20 * gStory.Level() ? 1 : 0) + (gStory.Level() >= 2 && first_clear ? 1 : 0);
+		for(int k = 0; k < drops; k++) {
+			const auto code = RandomCardFromDeck(deck_file, first_clear || gStory.Level() >= 1);
 			if(code) {
 				cards.push_back({ code, RarityOf(code), Owned(code) == 0 });
 				AddCard(code);
 			}
 		}
+		if(gStory.Level() > 0)
+			sub += gStory.Level() == 1 ? L"   [Hard x2]" : L"   [Expert x3]";
 		if(first_clear) {
 			// a ticket for the pack of this era
 			for(const auto& def : items) {
@@ -3224,7 +3298,7 @@ void DuelWorld::NextReveal() {
 		return;
 	}
 	auto& cur = reveals.front();
-	const float all_flipped = 0.5f + cur.cards.size() * 0.22f + 0.3f;
+	const float all_flipped = 0.5f + cur.cards.size() * (cur.cards.size() > 10 ? 0.07f : 0.22f) + 0.3f;
 	if(cur.t < all_flipped) {
 		cur.t = all_flipped;   // skip the animation
 		return;
@@ -3412,12 +3486,14 @@ void DuelWorld::Draw2D() {
 	}
 	// cards
 	const size_t n = rv.cards.size();
-	const size_t per_row = n <= 5 ? std::max<size_t>(n, 1) : 4;
+	const size_t per_row = n <= 5 ? std::max<size_t>(n, 1) : (n > 10 ? 10 : 4);
 	const size_t rows = n == 0 ? 0 : (n + per_row - 1) / per_row;
-	const float card_h = rows <= 1 ? Hd * 0.42f : Hd * 0.3f;
+	float card_h = rows <= 1 ? Hd * 0.42f : (rows <= 2 ? Hd * 0.3f : Hd * 0.62f / rows);
+	card_h = std::min(card_h, Wd * 0.92f / (per_row * 1.18f) / 0.697f);
 	const float card_w = card_h * 0.697f;
 	const float gap = card_w * 0.18f;
-	const float top = rows <= 1 ? Hd * 0.27f : Hd * 0.2f;
+	const float top = rows <= 1 ? Hd * 0.27f : (rows <= 2 ? Hd * 0.2f : Hd * 0.17f);
+	const float step = n > 10 ? 0.07f : 0.22f;
 	auto* back = mainGame->imageManager.tCover[0];
 	reveal_hits.clear();
 	for(size_t i = 0; i < n; i++) {
@@ -3425,8 +3501,8 @@ void DuelWorld::Draw2D() {
 		const size_t row = i / per_row, col = i % per_row;
 		const size_t in_row = std::min(per_row, n - row * per_row);
 		const float row_w = in_row * card_w + (in_row - 1) * gap;
-		const vector2df center{ Wd / 2 - row_w / 2 + col * (card_w + gap) + card_w / 2, top + row * (card_h + Hd * 0.08f) + card_h / 2 };
-		const float start = 0.5f + i * 0.22f;
+		const vector2df center{ Wd / 2 - row_w / 2 + col * (card_w + gap) + card_w / 2, top + row * (card_h + (rows > 2 ? Hd * 0.045f : Hd * 0.08f)) + card_h / 2 };
+		const float start = 0.5f + i * step;
 		const float p = Clamp01((rv.t - start) / 0.28f);
 		const float appear = Clamp01((rv.t - i * 0.05f) / 0.25f);
 		const bool front = p >= 0.5f;

@@ -93,6 +93,9 @@ private:
 		bool direct = false;
 		bool impact_done = false;
 		int bolts_hit = 0;
+		bool grand = false;     // ace monster: cut-in + bigger impact
+		uint32_t code = 0;
+		float lead = 0;         // seconds of cut-in before the attack itself
 	};
 	struct Shard {
 		uint32_t code;          // 0 = card back of `controler`

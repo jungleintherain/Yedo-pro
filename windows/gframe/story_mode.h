@@ -40,6 +40,7 @@ enum STORY_GUI {
 	BUTTON_STORY_DIALOG_SKIP,
 	COMBOBOX_STORY_SKILL,
 	BUTTON_STORY_SKILL_INFO,
+	COMBOBOX_STORY_LEVEL,
 };
 
 struct StoryLine {
@@ -103,6 +104,8 @@ public:
 	const StoryChapter& DuelChapter() const { return duel_ch; }
 	bool FreeDuel() const { return active && (duel_ch.sandbox || duel_ch.free_deck); }
 	uint32_t DuelSkill() const { return active ? duel_ch.player_skill : 0; }
+	// story difficulty: 0 easy, 1 hard, 2 expert (bots get skills, rewards x1/x2/x3)
+	int Level() const { return level; }
 	std::wstring SelectedOpponent() const { const int i = SelectedChapter(); return i < 0 ? std::wstring() : chapters[static_cast<size_t>(i)].opponent; }
 	std::wstring SelectedArc() const { const int i = SelectedChapter(); return i < 0 ? std::wstring() : chapters[static_cast<size_t>(i)].arc; }
 	irr::gui::IGUIElement* InfoBox() const;
@@ -160,6 +163,11 @@ private:
 	irr::gui::IGUIStaticText* stChapterInfo = nullptr;
 	irr::gui::IGUIComboBox* cbPlayerDeck = nullptr;
 	irr::gui::IGUIComboBox* cbSkill = nullptr;
+	irr::gui::IGUIComboBox* cbLevel = nullptr;
+	int level = 0;
+	void LoadLevel();
+	void SaveLevel() const;
+	StoryChapter WithLevel(const StoryChapter& ch) const;
 	irr::gui::IGUIButton* btnPlay = nullptr;
 	irr::gui::IGUIButton* btnBack = nullptr;
 	irr::gui::IGUIButton* btnReset = nullptr;
