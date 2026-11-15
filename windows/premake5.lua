@@ -248,7 +248,7 @@ workspace "ygo"
 
 	filter "action:vs*"
 		vectorextensions "SSE2"
-		buildoptions "-wd4996"
+		buildoptions { "-wd4996", "/utf-8" }
 		defines "_CRT_SECURE_NO_WARNINGS"
 
 	filter "action:not vs*"
