@@ -6,6 +6,7 @@ on:
     paths:
       - 'windows/gframe/**'
       - 'windows/ocgcore/**'
+      - 'windows/premake5.lua'
       - '.github/workflows/windows-exe.yml'
 permissions:
   contents: write
