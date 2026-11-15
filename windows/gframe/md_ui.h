@@ -64,6 +64,9 @@ public:
 	bool KeepMenuHover(const irr::core::vector2di& pos) const;
 	irr::core::recti menu_keep;
 	void StyleButton(irr::gui::IGUIButton* btn, bool primary);
+	// Master Duel style duel HUD (LP plates, avatars, turn medallion, timers) replacing EDOPro's LP bars
+	bool HudReady() const { return ready; }
+	void DrawDuelHud();
 
 private:
 	enum class Overlay { NONE, VERSUS, COIN, START, RESULT };
@@ -93,6 +96,11 @@ private:
 	void DrawStart(float t);
 	void DrawResult(float t);
 	void DrawSpeech();
+	void DrawLpPlate(int side, const irr::core::recti& r, bool active, float pulse);
+	float hud_lp[2] = { -1.f, -1.f };   // smoothed LP bar fill
+	float hud_lp_ghost[2] = { -1.f, -1.f }; // delayed "damage" trail
+	int hud_last_turn = -1;
+	uint32_t hud_turn_change = 0;
 
 	bool ready = false;
 	std::wstring player_file = L"player.png";

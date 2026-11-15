@@ -1229,4 +1229,138 @@ void MdUi::Speak(const std::wstring& text) {
 	speech.push_back(sp);
 }
 
+
+/* ------------------------------------------------------------- duel HUD */
+
+void MdUi::DrawLpPlate(int side, const recti& r, bool active, float pulse) {
+	auto* driver = mainGame->driver;
+	const auto& di = mainGame->dInfo;
+	const float s = Scl();
+	const bool left = side == 0;
+	const SColor accent = left ? SColor(255, 70, 170, 255) : SColor(255, 255, 80, 90);
+	const SColor gold(255, 245, 205, 110);
+	const int h = r.getHeight();
+	// shadow + body
+	driver->draw2DRectangle(SColor(110, 0, 0, 0), recti(r.UpperLeftCorner.X + 3, r.UpperLeftCorner.Y + 4, r.LowerRightCorner.X + 3, r.LowerRightCorner.Y + 4));
+	Rect(r, SColor(235, 22, 30, 54), SColor(240, 6, 8, 20));
+	if(left)
+		HRect(r, WithA(accent, 0.30f), WithA(accent, 0.f));
+	else
+		HRect(r, WithA(accent, 0.f), WithA(accent, 0.30f));
+	// avatar square on the outer side
+	const int av = h - static_cast<int>(6 * s);
+	const int ay = r.UpperLeftCorner.Y + (h - av) / 2;
+	const int ax = left ? r.UpperLeftCorner.X + static_cast<int>(3 * s) : r.LowerRightCorner.X - static_cast<int>(3 * s) - av;
+	const recti avr(ax, ay, ax + av, ay + av);
+	Rect(avr, WithA(accent, 0.55f), SColor(255, 10, 12, 24));
+	auto* tex = left ? PlayerPortrait() : OpponentPortrait();
+	const auto& names = (left == di.isTeam1) ? di.selfnames : di.opponames;
+	const int cur = di.current_player[left ? 0 : 1];
+	std::wstring name;
+	if(!names.empty())
+		name = names[std::min<size_t>(cur < 0 ? 0 : cur, names.size() - 1)];
+	if(tex) {
+		const auto ts = tex->getOriginalSize();
+		const int sq = std::min(ts.Width, ts.Height);
+		const int cw = sq * 2 / 3;   // head & shoulders of a full-body portrait
+		const int cx = ts.Width / 2;
+		recti src(cx - cw / 2, 0, cx + cw / 2, cw);
+		if(!left)
+			src = recti(src.LowerRightCorner.X, 0, src.UpperLeftCorner.X, cw);
+		const SColor c(255, 255, 255, 255);
+		const SColor cols[4] = { c, c, c, c };
+		driver->draw2DImage(tex, avr, src, &avr, cols, true);
+	} else if(!name.empty()) {
+		Text(mainGame->numFont, name.substr(0, 1), avr.getCenter().X, avr.getCenter().Y, SColor(255, 255, 255, 255));
+	}
+	driver->draw2DRectangleOutline(avr, active ? gold : WithA(accent, 0.8f));
+	// name + LP number
+	const int pad = static_cast<int>(8 * s);
+	const int tx0 = left ? avr.LowerRightCorner.X + pad : r.UpperLeftCorner.X + pad;
+	const int tx1 = left ? r.LowerRightCorner.X - pad : avr.UpperLeftCorner.X - pad;
+	const int name_y = r.UpperLeftCorner.Y + static_cast<int>(11 * s);
+	if(!name.empty())
+		Text(mainGame->textFont, name, left ? tx0 : tx1, name_y, SColor(255, 225, 232, 255), left ? -1 : 1);
+	Text(mainGame->guiFont, L"LP", left ? tx1 - static_cast<int>(64 * s) : tx0 + static_cast<int>(64 * s), r.UpperLeftCorner.Y + static_cast<int>(27 * s),
+		 WithA(gold, 0.9f), left ? 1 : -1);
+	Text(mainGame->numFont, di.strLP[side], left ? tx1 : tx0, r.UpperLeftCorner.Y + static_cast<int>(26 * s), SColor(255, 255, 255, 255), left ? 1 : -1);
+	// LP bar with a delayed damage trail
+	const float target = di.startlp > 0 ? Clamp01(std::max(0, di.lp[side]) / static_cast<float>(di.startlp)) : 0.f;
+	if(hud_lp[side] < 0) { hud_lp[side] = target; hud_lp_ghost[side] = target; }
+	hud_lp[side] += (target - hud_lp[side]) * 0.25f;
+	if(hud_lp_ghost[side] < hud_lp[side]) hud_lp_ghost[side] = hud_lp[side];
+	else hud_lp_ghost[side] += (hud_lp[side] - hud_lp_ghost[side]) * 0.04f;
+	const int by0 = r.LowerRightCorner.Y - static_cast<int>(11 * s), by1 = r.LowerRightCorner.Y - static_cast<int>(5 * s);
+	const recti bar(tx0, by0, tx1, by1);
+	driver->draw2DRectangle(SColor(200, 0, 0, 0), bar);
+	const int bw = bar.getWidth();
+	auto fill = [&](float f) {
+		const int w = static_cast<int>(bw * Clamp01(f));
+		return left ? recti(bar.UpperLeftCorner.X, by0, bar.UpperLeftCorner.X + w, by1) : recti(bar.LowerRightCorner.X - w, by0, bar.LowerRightCorner.X, by1);
+	};
+	driver->draw2DRectangle(SColor(230, 255, 210, 120), fill(hud_lp_ghost[side]));
+	const float f = hud_lp[side];
+	const SColor lo = f < 0.25f ? SColor(255, 255, 60, 50) : (f < 0.5f ? SColor(255, 255, 170, 40) : (left ? SColor(255, 40, 140, 255) : SColor(255, 230, 50, 80)));
+	const SColor hi = f < 0.25f ? SColor(255, 255, 140, 120) : (f < 0.5f ? SColor(255, 255, 230, 120) : (left ? SColor(255, 130, 230, 255) : SColor(255, 255, 140, 150)));
+	if(left) HRect(fill(f), lo, hi); else HRect(fill(f), hi, lo);
+	driver->draw2DRectangleOutline(bar, SColor(160, 255, 255, 255));
+	// timer (online duels)
+	if(!di.isReplay && !di.isSingleMode && di.player_type < 7 && di.time_limit) {
+		const float tf = Clamp01(di.time_left[side] / static_cast<float>(di.time_limit));
+		const int ty0 = r.LowerRightCorner.Y + static_cast<int>(3 * s), ty1 = ty0 + std::max(2, static_cast<int>(3 * s));
+		const int tw = static_cast<int>(r.getWidth() * tf);
+		const recti tr = left ? recti(r.UpperLeftCorner.X, ty0, r.UpperLeftCorner.X + tw, ty1) : recti(r.LowerRightCorner.X - tw, ty0, r.LowerRightCorner.X, ty1);
+		driver->draw2DRectangle(tf < 0.25f ? SColor(255, 255, 70, 60) : SColor(230, 120, 220, 255), tr);
+	}
+	// frame: gold pulsing glow for the turn player
+	if(active) {
+		for(int i = 1; i <= 3; i++) {
+			const int g = static_cast<int>(i * 2 * s);
+			driver->draw2DRectangleOutline(recti(r.UpperLeftCorner.X - g, r.UpperLeftCorner.Y - g, r.LowerRightCorner.X + g, r.LowerRightCorner.Y + g),
+										   WithA(gold, (0.55f - i * 0.15f) * (0.6f + 0.4f * pulse)));
+		}
+		driver->draw2DRectangleOutline(r, gold);
+	} else {
+		driver->draw2DRectangleOutline(r, WithA(accent, 0.7f));
+	}
+	// accent stripe along the inner edge
+	const int st = std::max(2, static_cast<int>(3 * s));
+	if(left)
+		Rect(recti(r.LowerRightCorner.X - st, r.UpperLeftCorner.Y, r.LowerRightCorner.X, r.LowerRightCorner.Y), accent, WithA(accent, 0.3f));
+	else
+		Rect(recti(r.UpperLeftCorner.X, r.UpperLeftCorner.Y, r.UpperLeftCorner.X + st, r.LowerRightCorner.Y), accent, WithA(accent, 0.3f));
+}
+
+void MdUi::DrawDuelHud() {
+	const auto& di = mainGame->dInfo;
+	const uint32_t now = Now();
+	const float pulse = 0.5f + 0.5f * std::sin(now / 260.f);
+	const bool self_turn = (di.turn % 2 && di.isFirst) || (!(di.turn % 2) && !di.isFirst);
+	if(di.turn != hud_last_turn) {
+		if(hud_last_turn >= 0 && di.turn > hud_last_turn)
+			hud_turn_change = now;
+		if(di.turn < hud_last_turn || di.turn <= 1) {
+			hud_lp[0] = hud_lp[1] = -1.f;
+			hud_lp_ghost[0] = hud_lp_ghost[1] = -1.f;
+		}
+		hud_last_turn = di.turn;
+	}
+	DrawLpPlate(0, mainGame->Resize(318, 6, 626, 60), di.turn > 0 && self_turn, pulse);
+	DrawLpPlate(1, mainGame->Resize(694, 6, 1002, 60), di.turn > 0 && !self_turn, pulse);
+	// center turn medallion
+	const auto c = mainGame->Resize(660, 33);
+	const float s = Scl();
+	const float flash = (hud_turn_change && now - hud_turn_change < 900) ? 1.f - (now - hud_turn_change) / 900.f : 0.f;
+	const SColor side_col = self_turn ? SColor(255, 60, 160, 255) : SColor(255, 240, 70, 90);
+	const float d = 46 * s * (1.f + 0.25f * flash);
+	Quad(tWhite, static_cast<float>(c.X), static_cast<float>(c.Y + 3), d + 6 * s, d + 6 * s, 45.f, SColor(120, 0, 0, 0));
+	Quad(tWhite, static_cast<float>(c.X), static_cast<float>(c.Y), d + 4 * s, d + 4 * s, 45.f, SColor(255, 245, 205, 110));
+	Quad(tWhite, static_cast<float>(c.X), static_cast<float>(c.Y), d, d, 45.f, SColor(255, 14, 18, 36));
+	Quad(tWhite, static_cast<float>(c.X), static_cast<float>(c.Y), d * 0.8f, d * 0.8f, 45.f, WithA(side_col, 0.35f + 0.25f * pulse), true);
+	if(flash > 0)
+		Quad(tWhite, static_cast<float>(c.X), static_cast<float>(c.Y), d * (1.f + 1.5f * (1.f - flash)), d * (1.f + 1.5f * (1.f - flash)), 45.f, WithA(SColor(255, 255, 230, 150), flash * 0.7f), true);
+	Text(mainGame->guiFont, L"TURN", c.X, c.Y - static_cast<int>(11 * s), SColor(255, 245, 205, 110));
+	Text(mainGame->numFont, epro::to_wstring(std::max(0, di.turn)), c.X, c.Y + static_cast<int>(6 * s), SColor(255, 255, 255, 255));
+}
+
 }
