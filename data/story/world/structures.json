@@ -432,6 +432,96 @@
    "file": "./WindBot/Decks/AI_Burn.ydk",
    "price": 600,
    "cover": 0
+  },
+  {
+   "id": "M_Horus",
+   "cat": "meta",
+   "name": "Horus - Pharaonic Guardian",
+   "desc": "Horus + Dragonmaid: King's Sarcophagus ส่งการ์ดลงสุสานเรียก Horus ซ้ำได้ทุกเทิร์น",
+   "file": "./story/world/structures/horus.ydk",
+   "price": 1500,
+   "cover": 84941194
+  },
+  {
+   "id": "M_SnakeEye",
+   "cat": "meta",
+   "name": "Snake-Eye Fire King",
+   "desc": "Snake-Eye + Fire King + Diabellstar: เรียกต่อเนื่องจากมือ/สุสาน ย้ายมอนสเตอร์เป็นเวทต่อเนื่อง",
+   "file": "./story/world/structures/snakeeye.ydk",
+   "price": 1500,
+   "cover": 9674034
+  },
+  {
+   "id": "M_Spright",
+   "cat": "meta",
+   "name": "Spright",
+   "desc": "Spright: มอนสเตอร์ Level/Rank/Link 2 เรียกพิเศษง่าย ปิดเกมด้วย Spright Elf / Gigantic Spright",
+   "file": "./story/world/structures/spright.ydk",
+   "price": 1500,
+   "cover": 76145933
+  },
+  {
+   "id": "C_EvilHERO",
+   "cat": "classic",
+   "name": "Evil HERO (Dark HERO)",
+   "desc": "ฮีโร่ปีศาจของจูไดฝั่งราชาแห่งความมืด: Dark Fusion ฟิวชั่นเป็น Evil HERO หลายแบบ",
+   "file": "./story/world/structures/evilhero.ydk",
+   "price": 600,
+   "cover": 58554959
+  },
+  {
+   "id": "C_VisionHERO",
+   "cat": "classic",
+   "name": "Vision HERO",
+   "desc": "Vision HERO (V HERO): สลับวางเป็นเวทต่อเนื่อง ค้น/เรียกต่อเนื่อง Fusion เป็น Vision HERO Trinity",
+   "file": "./story/world/structures/visionhero.ydk",
+   "price": 600,
+   "cover": 27780618
+  },
+  {
+   "id": "C_DestinyHERO",
+   "cat": "classic",
+   "name": "Destiny HERO",
+   "desc": "Destiny HERO ของเอโด: เรียกจากสุสาน คุมเทิร์นถัดไป ปิดด้วย Destroyer Phoenix Enforcer",
+   "file": "./story/world/structures/destinyhero.ydk",
+   "price": 600,
+   "cover": 40591390
+  },
+  {
+   "id": "C_Gladiator",
+   "cat": "classic",
+   "name": "Gladiator Beast",
+   "desc": "Gladiator Beast: สลับตัวกลับเด็คหลังต่อสู้แล้วเรียกตัวใหม่ ฟิวชั่นเป็น Heraklinos",
+   "file": "./story/world/structures/gladiator.ydk",
+   "price": 600,
+   "cover": 78868776
+  },
+  {
+   "id": "C_SixSamurai",
+   "cat": "classic",
+   "name": "Six Samurai",
+   "desc": "Six Samurai: เรียกพิเศษเมื่อมีซามูไรอยู่ ใช้ Bushido Counter ผ่าน Gateway of the Six",
+   "file": "./story/world/structures/sixsamurai.ydk",
+   "price": 600,
+   "cover": 49721904
+  },
+  {
+   "id": "C_AncientGear",
+   "cat": "classic",
+   "name": "Ancient Gear",
+   "desc": "Ancient Gear ของอาจารย์ครอนอส: เครื่องจักรโบราณตีทะลุ คู่ต่อสู้เปิดเวท/กับดักตอบไม่ได้",
+   "file": "./story/world/structures/ancientgear.ydk",
+   "price": 600,
+   "cover": 83104731
+  },
+  {
+   "id": "C_Dinosaur",
+   "cat": "classic",
+   "name": "Dinosaur",
+   "desc": "ไดโนเสาร์: ทำลายตัวเองเพื่อเรียกไดโนตัวใหญ่จากเด็ค Ultimate Conductor Tyranno",
+   "file": "./story/world/structures/dinosaur.ydk",
+   "price": 600,
+   "cover": 18940556
   }
  ]
 }

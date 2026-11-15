@@ -12,6 +12,7 @@
 #include "story_mode.h"
 #include "world.h"
 #include "yedo_patcher.h"
+#include "yedo_picker.h"
 #include "sandbox.h"
 #include "campaign.h"
 #include "server_lobby.h"
@@ -100,6 +101,8 @@ static void LoadReplay() {
 	ReplayMode::StartReplay(start_turn, (mainGame->chkYrp->isChecked() || replay.IsOldReplayMode()));
 }
 bool MenuHandler::OnEvent(const irr::SEvent& event) {
+	if(gPicker.OnEvent(event))
+		return true;
 	if(gSandbox.OnEvent(event))
 		return true;
 	if(gCampaign.OnEvent(event))

@@ -1,54 +1,32 @@
 --Tears of the Abyss (YEdo special skill - "Tearlaments" Structure Deck)
 local s,id=GetID()
-s.sets={0x182}
-local NOCHECK=false
 local function used(tp,n) return Duel.GetFlagEffect(tp,id+n*1000000)>0 end
 local function use(tp,n) Duel.RegisterFlagEffect(tp,id+n*1000000,0,0,0) end
 local function flip(tp) Duel.Hint(HINT_SKILL_FLIP,tp,id|(1<<32)) Duel.Hint(HINT_CARD,tp,id) end
-local function isarch(c)
-	for _,set in ipairs(s.sets) do
-		if c:IsSetCard(set) then return true end
+local function mz(tp) return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
+local function tohand(g,tp) if #g>0 then Duel.SendtoHand(g,nil,REASON_EFFECT) Duel.ConfirmCards(1-tp,g) end end
+function s.con1(e,tp) return Duel.IsPlayerCanDiscardDeck(tp,3) end
+function s.op1(e,tp) Duel.DiscardDeck(tp,3,REASON_EFFECT) end
+local function f2(c) return c:IsSetCard(0x182) and c:IsAbleToDeck() end
+function s.con2(e,tp) return Duel.IsPlayerCanDraw(tp,1) and Duel.IsExistingMatchingCard(f2,tp,LOCATION_GRAVE,0,1,nil) end
+function s.op2(e,tp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(f2),tp,LOCATION_GRAVE,0,1,3,nil)
+	if #g>0 and Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)>0 then
+		Duel.ShuffleDeck(tp)
+		Duel.BreakEffect()
+		Duel.Draw(tp,1,REASON_EFFECT)
 	end
-	return false
-end
---(1) add 1 card of the archetype from the Deck to the hand
-local function thfilter(c)
-	return isarch(c) and c:IsAbleToHand()
-end
---(2) Special Summon 1 monster of the archetype from the GY / face-up banished
-local function spfilter(c,e,tp)
-	return isarch(c) and c:IsMonster() and (c:IsLocation(LOCATION_GRAVE) or c:IsFaceup())
-		and c:IsCanBeSpecialSummoned(e,0,tp,NOCHECK,false)
-		and (not c:IsType(TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK) or Duel.GetLocationCountFromEx(tp,tp,nil,c)>0)
-		and (c:IsType(TYPE_FUSION+TYPE_SYNCHRO+TYPE_XYZ+TYPE_LINK) or Duel.GetLocationCount(tp,LOCATION_MZONE)>0)
 end
 function s.initial_effect(c)
 	aux.AddSkillProcedure(c,1,false,s.flipcon,s.flipop)
 end
-local function b1(e,tp)
-	return not used(tp,1) and Duel.IsExistingMatchingCard(thfilter,tp,LOCATION_DECK,0,1,nil)
-end
-local function b2(e,tp)
-	return not used(tp,2) and Duel.IsExistingMatchingCard(spfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil,e,tp)
-end
+local function b1(e,tp) return not used(tp,1) and s.con1(e,tp) end
+local function b2(e,tp) return not used(tp,2) and s.con2(e,tp) end
 function s.flipcon(e,tp) return aux.CanActivateSkill(tp) and (b1(e,tp) or b2(e,tp)) end
 function s.flipop(e,tp)
 	flip(tp)
 	local op=Duel.SelectEffect(tp,{b1(e,tp),aux.Stringid(id,0)},{b2(e,tp),aux.Stringid(id,1)})
-	if op==1 then
-		use(tp,1)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local g=Duel.SelectMatchingCard(tp,thfilter,tp,LOCATION_DECK,0,1,1,nil)
-		if #g>0 then
-			Duel.SendtoHand(g,nil,REASON_EFFECT)
-			Duel.ConfirmCards(1-tp,g)
-		end
-	elseif op==2 then
-		use(tp,2)
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local tc=Duel.SelectMatchingCard(tp,spfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil,e,tp):GetFirst()
-		if tc and Duel.SpecialSummon(tc,0,tp,tp,NOCHECK,false,POS_FACEUP)>0 and NOCHECK then
-			tc:CompleteProcedure()
-		end
-	end
+	if op==1 then use(tp,1) s.op1(e,tp)
+	elseif op==2 then use(tp,2) s.op2(e,tp) end
 end

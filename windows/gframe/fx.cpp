@@ -151,6 +151,48 @@ void DuelFx::MakeTextures() {
 		const float ends = Clamp01((1 - std::fabs(u)) / 0.12f);
 		return across * ends;
 	});
+	tSwirl = make("fx_swirl", 256, 256, [](float u, float v) {
+		// 3 spiral arms (fusion vortex / xyz galaxy)
+		const float r = std::sqrt(u * u + v * v);
+		if(r > 1)
+			return 0.f;
+		const float ang = std::atan2(v, u);
+		const float arm = std::pow(std::max(0.f, std::cos(3.f * ang + r * 9.f)), 6.f);
+		return arm * std::pow(1 - r, 0.8f) * Clamp01(r * 4.f) + 0.25f * std::pow(Clamp01(1 - r), 3.f);
+	});
+	tMagic = make("fx_magic", 512, 512, [](float u, float v) {
+		// magic circle: double ring, rune band, hexagram, inner ring
+		const float r = std::sqrt(u * u + v * v);
+		if(r > 1)
+			return 0.f;
+		auto band = [r](float at, float w) { const float d = (r - at) / w; return std::exp(-d * d); };
+		const float ang = std::atan2(v, u);
+		float a = band(0.95f, 0.012f) + band(0.88f, 0.010f) + band(0.55f, 0.010f) + 0.6f * band(0.30f, 0.010f);
+		// rune ticks between the outer rings
+		if(r > 0.885f && r < 0.945f)
+			a += 0.8f * std::pow(std::max(0.f, std::cos(ang * 36.f)), 30.f) + 0.4f * std::pow(std::max(0.f, std::sin(ang * 12.f)), 60.f);
+		// hexagram: two triangles inscribed in r = 0.88
+		for(int t = 0; t < 2; t++) {
+			for(int k = 0; k < 3; k++) {
+				const float a1 = (k * 120.f + t * 60.f - 90.f) * PI / 180.f;
+				const float a2 = ((k + 1) * 120.f + t * 60.f - 90.f) * PI / 180.f;
+				const float x1 = 0.88f * std::cos(a1), y1 = 0.88f * std::sin(a1);
+				const float x2 = 0.88f * std::cos(a2), y2 = 0.88f * std::sin(a2);
+				const float dx = x2 - x1, dy = y2 - y1;
+				const float len2 = dx * dx + dy * dy;
+				const float tt = Clamp01(((u - x1) * dx + (v - y1) * dy) / len2);
+				const float px = x1 + tt * dx - u, py = y1 + tt * dy - v;
+				const float d = std::sqrt(px * px + py * py) / 0.008f;
+				a += std::exp(-d * d);
+			}
+		}
+		return a;
+	});
+	tDisk = make("fx_disk", 128, 128, [](float u, float v) {
+		// solid soft disk (black hole core)
+		const float r = std::sqrt(u * u + v * v);
+		return Clamp01((1 - r) / 0.15f);
+	});
 	tBeam = make("fx_beam", 64, 128, [](float u, float v) {
 		// bright at the bottom (v = 1), soft on the sides
 		const float side = std::exp(-(u / 0.45f) * (u / 0.45f));
@@ -334,11 +376,43 @@ int DuelFx::Summon(uint32_t code, ClientCard* pcard, SummonKind kind) {
 		else
 			summon.label = L"SPECIAL SUMMON";
 	}
+	// Master Duel-like look per summon method
+	const uint32_t from = (pcard && (pcard->location & LOCATION_MZONE) && pcard->sequence < 8) ? last_from[pcard->controler & 1][pcard->sequence] : 0;
+	summon.level = static_cast<int>(level);
+	summon.link_marker = data ? data->link_marker : 0;
+	if(special) {
+		if(from_extra && (type & TYPE_LINK))
+			summon.style = STYLE_LINK;
+		else if(from_extra && (type & TYPE_XYZ))
+			summon.style = STYLE_XYZ;
+		else if(from_extra && (type & TYPE_SYNCHRO))
+			summon.style = STYLE_SYNCHRO;
+		else if(from_extra && (type & TYPE_FUSION))
+			summon.style = STYLE_FUSION;
+		else if((type & TYPE_PENDULUM) && (from & (LOCATION_HAND | LOCATION_EXTRA)))
+			summon.style = STYLE_PENDULUM;
+		else if(ritual && (from & LOCATION_HAND))
+			summon.style = STYLE_RITUAL;
+	}
+	if(summon.style == STYLE_PENDULUM) {
+		// several monsters are Pendulum Summoned at once: only the first one gets the big show
+		if(time - last_pendulum < 1.6f) {
+			summon.style = STYLE_PLAIN;
+			summon.big = false;
+			summon.label.clear();
+		} else {
+			summon.big = true;
+			summon.label = L"PENDULUM SUMMON";
+		}
+		last_pendulum = time;
+	}
+	if(summon.style == STYLE_RITUAL)
+		summon.big = true, summon.label = L"RITUAL SUMMON";
 	if(pcard && (pcard->location & LOCATION_MZONE)) {
 		summon.has_field = true;
 		summon.field_pos3d = pcard->curPos;
 	}
-	float duration = summon.big ? 1.25f : 0.6f;
+	float duration = summon.big ? (summon.style != STYLE_PLAIN ? 1.7f : 1.25f) : 0.6f;
 	if(gGameConfig->quick_animation)
 		duration *= 0.6f;
 	duration /= speed;
@@ -1015,8 +1089,10 @@ void DuelFx::DrawSummon() {
 		for(int i = 0; i < 3; i++) {
 			const float rp = std::fmod(summon.t * 1.4f + i / 3.f, 1.f);
 			const float r = H * (0.25f + rp * 1.1f);
-			DrawQuad(tRing, FULL_UV, center, { r, r }, 0, WithAlpha(summon.color, (1 - rp) * rays_a * 0.9f), true);
+			DrawQuad(tRing, FULL_UV, center, { r, r }, 0, WithAlpha(summon.color, (1 - rp) * rays_a * (summon.style ? 0.35f : 0.9f)), true);
 		}
+		if(summon.style != STYLE_PLAIN)
+			DrawSummonStyle(p, center, W, H, Clamp01(dark));
 		// the card
 		float scale, alpha = 1;
 		vector2df pos = center;
@@ -1082,6 +1158,175 @@ void DuelFx::DrawSummon() {
 		const vector2df card_size{ card_h * 0.697f, card_h };
 		DrawQuad(tGlow, FULL_UV, pos, card_size * 1.7f, 0, WithAlpha(summon.color, alpha * 0.7f), true);
 		DrawQuad(art, FULL_UV, pos, card_size, 0, SColor(static_cast<irr::u32>(alpha * 255), 255, 255, 255), false);
+	}
+}
+
+void DuelFx::Beam(const vector2df& from, const vector2df& to, float width, SColor color) {
+	const vector2df d = to - from;
+	const float len = std::sqrt(d.X * d.X + d.Y * d.Y);
+	if(len < 1)
+		return;
+	DrawQuad(tLine, FULL_UV, (from + to) * 0.5f, { len, width }, std::atan2(d.Y, d.X) * 180.f / PI, color, true);
+}
+
+// Master Duel-like background for each summon method (drawn behind the card art)
+void DuelFx::DrawSummonStyle(float p, const vector2df& center, float W, float H, float a) {
+	const float t = summon.t;
+	const float in = Clamp01(p / 0.2f);
+	auto pt = [&](float ang_deg, float rx, float ry) {
+		const float r = ang_deg * PI / 180.f;
+		return center + vector2df{ std::cos(r) * rx, std::sin(r) * ry };
+	};
+	switch(summon.style) {
+	case STYLE_FUSION: {
+		// purple/orange vortex that swallows the materials, then bursts
+		const SColor c1(255, 190, 90, 255), c2(255, 255, 150, 60);
+		const float sz = H * (0.4f + 0.9f * EaseOut(in));
+		DrawQuad(tSwirl, FULL_UV, center, { sz, sz }, -t * 260.f, WithAlpha(c1, a * 0.9f), true);
+		DrawQuad(tSwirl, FULL_UV, center, { sz * 0.75f, sz * 0.75f }, t * 340.f + 60, WithAlpha(c2, a * 0.7f), true);
+		// two "materials" spiralling into the centre
+		if(p < 0.45f) {
+			const float q = p / 0.45f;
+			for(int i = 0; i < 2; i++) {
+				const float ang = i * 180.f + q * 540.f;
+				const float rad = H * 0.55f * (1 - EaseIn(q));
+				const vector2df m = pt(ang, rad, rad * 0.8f);
+				DrawQuad(tGlow, FULL_UV, m, { H * 0.22f, H * 0.22f }, 0, WithAlpha(i ? c2 : c1, a * (1 - q * 0.5f)), true);
+				DrawQuad(tSpark, FULL_UV, m, { H * 0.08f, H * 0.08f }, 0, WithAlpha(SColor(255, 255, 255, 255), a), true);
+			}
+		}
+		if(p > 0.42f && p < 0.62f) {
+			const float q = (p - 0.42f) / 0.2f;
+			DrawQuad(tGlow, FULL_UV, center, { H * 1.6f * q, H * 1.6f * q }, 0, WithAlpha(SColor(255, 255, 230, 255), a * (1 - q)), true);
+		}
+		break;
+	}
+	case STYLE_SYNCHRO: {
+		// tuner rings fly through the light pillar, stars align on one line, then a white flash
+		const SColor g(255, 120, 255, 150), w(255, 240, 255, 240);
+		DrawQuad(tBeam, FULL_UV, { center.X, center.Y - H * 0.05f }, { H * 0.35f, H * 1.3f }, 180, WithAlpha(w, a * 0.55f * in), true);
+		const int rings = std::max(2, std::min(summon.level, 8) / 2 + 1);
+		for(int i = 0; i < rings; i++) {
+			const float rp = std::fmod(t * 0.9f + i / static_cast<float>(rings), 1.f);
+			const float y = center.Y + H * (0.45f - rp * 0.95f);
+			const float rw = H * 0.55f;
+			DrawQuad(tRing, FULL_UV, { center.X, y }, { rw, rw * 0.22f }, 0, WithAlpha(g, a * 0.95f * std::sin(rp * PI)), true);
+		}
+		const int stars = std::max(1, std::min(summon.level, 12));
+		for(int i = 0; i < stars; i++) {
+			const float sp = Clamp01((p - 0.1f - i * 0.025f) / 0.25f);
+			if(sp <= 0)
+				continue;
+			const float x = center.X + (i - (stars - 1) / 2.f) * H * 0.07f;
+			const vector2df target{ x, center.Y - H * 0.36f };
+			const vector2df start = pt(i * 47.f, H * 0.7f, H * 0.5f);
+			const vector2df s = start + (target - start) * EaseOut(sp);
+			DrawQuad(tSpark, FULL_UV, s, { H * 0.07f, H * 0.07f }, 0, WithAlpha(w, a), true);
+			DrawQuad(tGlow, FULL_UV, s, { H * 0.12f, H * 0.12f }, 0, WithAlpha(g, a * 0.6f), true);
+		}
+		if(p > 0.4f && p < 0.55f) {
+			const float q = (p - 0.4f) / 0.15f;
+			Beam({ 0, center.Y - H * 0.36f }, { W, center.Y - H * 0.36f }, H * 0.05f * (1 - q), WithAlpha(w, a * (1 - q)));
+		}
+		break;
+	}
+	case STYLE_XYZ: {
+		// black hole with golden galaxy: the materials orbit and fall in
+		const SColor gold(255, 255, 210, 90);
+		const float sz = H * (0.3f + 0.75f * EaseOut(in));
+		DrawQuad(tSwirl, FULL_UV, center, { sz * 1.6f, sz * 1.6f * 0.55f }, t * 120.f, WithAlpha(gold, a * 0.8f), true);
+		DrawQuad(tSwirl, FULL_UV, center, { sz * 1.2f, sz * 1.2f * 0.55f }, -t * 90.f, WithAlpha(SColor(255, 255, 120, 40), a * 0.5f), true);
+		DrawQuad(tDisk, FULL_UV, center, { sz * 0.62f, sz * 0.62f }, 0, SColor(static_cast<irr::u32>(a * 235), 0, 0, 0), false);
+		DrawQuad(tRing, FULL_UV, center, { sz * 0.7f, sz * 0.7f }, 0, WithAlpha(gold, a), true);
+		for(int i = 0; i < 3; i++) {
+			const float fall = Clamp01((p - 0.1f) / 0.4f);
+			const float ang = i * 120.f + t * 300.f;
+			const float rx = H * 0.6f * (1 - EaseIn(fall)), ry = rx * 0.45f;
+			const vector2df o = pt(ang, rx, ry);
+			if(fall < 1) {
+				DrawQuad(tGlow, FULL_UV, o, { H * 0.14f, H * 0.14f }, 0, WithAlpha(gold, a), true);
+				DrawQuad(tSpark, FULL_UV, o, { H * 0.06f, H * 0.06f }, 0, WithAlpha(SColor(255, 255, 255, 255), a), true);
+			}
+		}
+		break;
+	}
+	case STYLE_PENDULUM: {
+		// two scale pillars and a pendulum swinging between them, painting a rainbow arc
+		const float px = H * 0.62f;
+		const SColor left(255, 80, 160, 255), right(255, 255, 90, 120);
+		DrawQuad(tBeam, FULL_UV, { center.X - px, center.Y }, { H * 0.22f, H * 1.4f }, 180, WithAlpha(left, a * 0.85f * in), true);
+		DrawQuad(tBeam, FULL_UV, { center.X + px, center.Y }, { H * 0.22f, H * 1.4f }, 180, WithAlpha(right, a * 0.85f * in), true);
+		const vector2df pivot{ center.X, center.Y - H * 0.55f };
+		const float len = H * 0.75f;
+		for(int k = 0; k < 24; k++) {
+			const float ang = -55.f + k * (110.f / 23.f);
+			const float r = (90.f + ang) * PI / 180.f;
+			const vector2df q = pivot + vector2df{ std::cos(r) * len, std::sin(r) * len };
+			SColor hue;
+			hue.setRed(static_cast<irr::u32>(127 + 127 * std::sin(k * 0.27f)));
+			hue.setGreen(static_cast<irr::u32>(127 + 127 * std::sin(k * 0.27f + 2.1f)));
+			hue.setBlue(static_cast<irr::u32>(127 + 127 * std::sin(k * 0.27f + 4.2f)));
+			hue.setAlpha(255);
+			DrawQuad(tGlow, FULL_UV, q, { H * 0.1f, H * 0.1f }, 0, WithAlpha(hue, a * 0.55f), true);
+		}
+		const float swing = 55.f * std::sin(t * 5.f);
+		const float r = (90.f + swing) * PI / 180.f;
+		const vector2df bob = pivot + vector2df{ std::cos(r) * len, std::sin(r) * len };
+		Beam(pivot, bob, H * 0.025f, WithAlpha(SColor(255, 255, 255, 255), a * 0.8f));
+		DrawQuad(tGlow, FULL_UV, bob, { H * 0.2f, H * 0.2f }, 0, WithAlpha(SColor(255, 255, 240, 160), a), true);
+		DrawQuad(tSpark, FULL_UV, bob, { H * 0.08f, H * 0.08f }, 0, WithAlpha(SColor(255, 255, 255, 255), a), true);
+		break;
+	}
+	case STYLE_LINK: {
+		// blue cyber circuit: rotating square frame, Link Arrows lighting up one by one, data lines
+		const SColor blue(255, 60, 170, 255), cyan(255, 150, 240, 255);
+		const float half = H * 0.42f * (0.6f + 0.4f * EaseOutBack(in));
+		const float rot = 45.f + t * 25.f;
+		for(int k = 0; k < 4; k++) {
+			const vector2df c1 = pt(rot + k * 90.f, half * 1.414f, half * 1.414f);
+			const vector2df c2 = pt(rot + (k + 1) * 90.f, half * 1.414f, half * 1.414f);
+			Beam(c1, c2, H * 0.03f, WithAlpha(blue, a));
+		}
+		// link arrows: bit order of LINK_MARKER_* (bottom-left .. top-right), drawn in the 8 directions
+		static const float dirs[9] = { 135, 90, 45, 180, 0, 0, 225, 270, 315 };
+		static const uint32_t bits[8] = { 0x1, 0x2, 0x4, 0x8, 0x20, 0x40, 0x80, 0x100 };
+		static const int dir_idx[8] = { 0, 1, 2, 3, 4, 6, 7, 8 };
+		for(int k = 0; k < 8; k++) {
+			const bool on = (summon.link_marker & bits[k]) != 0;
+			const float lit = on ? Clamp01((p - 0.12f - k * 0.04f) / 0.08f) : 0;
+			const float ang = dirs[dir_idx[k]];
+			const vector2df tip = pt(ang, H * 0.5f, H * 0.5f);
+			const vector2df base = pt(ang, H * 0.36f, H * 0.36f);
+			const SColor col = on ? WithAlpha(SColor(255, 255, 80, 80), a * (0.25f + 0.75f * lit)) : WithAlpha(blue, a * 0.25f);
+			Beam(base, tip, H * (on ? 0.05f : 0.025f), col);
+			if(on && lit > 0)
+				DrawQuad(tGlow, FULL_UV, tip, { H * 0.16f, H * 0.16f }, 0, WithAlpha(SColor(255, 255, 120, 90), a * lit), true);
+		}
+		for(int i = 0; i < 6; i++) {
+			const float lp = std::fmod(t * 1.3f + i / 6.f, 1.f);
+			const float y = center.Y + (i - 2.5f) * H * 0.12f;
+			const float x0 = lp * W;
+			Beam({ x0 - W * 0.12f, y }, { x0, y }, H * 0.012f, WithAlpha(cyan, a * 0.6f * std::sin(lp * PI)));
+		}
+		break;
+	}
+	case STYLE_RITUAL: {
+		// blue magic circle on the ground with flame pillars
+		const SColor c(255, 90, 150, 255), v(255, 180, 120, 255);
+		const float sz = H * 1.25f * (0.5f + 0.5f * EaseOut(in));
+		const vector2df ground{ center.X, center.Y + H * 0.2f };
+		DrawQuad(tMagic, FULL_UV, ground, { sz, sz * 0.42f }, 0, WithAlpha(c, a), true);
+		DrawQuad(tMagic, FULL_UV, center, { sz * 0.95f, sz * 0.95f }, t * 30.f, WithAlpha(v, a * 0.55f), true);
+		for(int k = 0; k < 6; k++) {
+			const float ang = k * 60.f + t * 20.f;
+			const vector2df base = ground + vector2df{ std::cos(ang * PI / 180.f) * sz * 0.45f, std::sin(ang * PI / 180.f) * sz * 0.18f };
+			const float flick = 0.75f + 0.25f * std::sin(t * 13.f + k);
+			DrawQuad(tBeam, FULL_UV, { base.X, base.Y - H * 0.3f }, { H * 0.12f, H * 0.6f * flick }, 180, WithAlpha(c, a * 0.8f), true);
+		}
+		break;
+	}
+	default:
+		break;
 	}
 }
 

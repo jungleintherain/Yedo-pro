@@ -2016,6 +2016,10 @@ void DuelWorld::MigrateWorldDecks() {
 		WriteSave();
 }
 
+irr::gui::IGUIElement* DuelWorld::SkillListElement() const {
+	return lstSkills;
+}
+
 std::vector<std::wstring> DuelWorld::AllStructDeckNames() {
 	if(structs.empty())
 		LoadData();

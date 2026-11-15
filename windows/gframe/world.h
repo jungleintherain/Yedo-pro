@@ -160,6 +160,7 @@ public:
 		bool owned_default = false;
 	};
 	const std::vector<SkillDef>& Skills();
+	irr::gui::IGUIElement* SkillListElement() const;
 	// campaign: every Structure Deck can be borrowed
 	std::vector<std::wstring> AllStructDeckNames();
 	bool WriteStructDeckAs(const std::wstring& struct_deck_name, const std::wstring& out_name);

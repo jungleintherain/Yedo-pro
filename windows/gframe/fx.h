@@ -121,7 +121,14 @@ private:
 		bool has_field = false;
 		bool landed = false;
 		float t = 0, duration = 1;
+		int style = 0;          // SummonStyle
+		uint32_t link_marker = 0;
+		int level = 0;
 	};
+	enum SummonStyle { STYLE_PLAIN, STYLE_FUSION, STYLE_SYNCHRO, STYLE_XYZ, STYLE_PENDULUM, STYLE_LINK, STYLE_RITUAL };
+	void DrawSummonStyle(float p, const irr::core::vector2df& center, float W, float H, float alpha);
+	void Beam(const irr::core::vector2df& from, const irr::core::vector2df& to, float width, irr::video::SColor color);
+	float last_pendulum = -100.f;
 	struct Banner {
 		bool active = false;
 		std::wstring text;
@@ -154,6 +161,9 @@ private:
 	irr::video::ITexture* tSpark = nullptr;
 	irr::video::ITexture* tBeam = nullptr;
 	irr::video::ITexture* tLine = nullptr;
+	irr::video::ITexture* tSwirl = nullptr;
+	irr::video::ITexture* tMagic = nullptr;
+	irr::video::ITexture* tDisk = nullptr;
 	std::vector<AttackFx> attacks;
 
 	std::vector<Particle> particles;
