@@ -3396,7 +3396,7 @@ void DuelWorld::Draw2D() {
 				 SColor(40, 120, 150, 255), true);
 	// title
 	auto* big = mainGame->lpcFont;
-	auto* small = mainGame->guiFont;
+	auto* fntSmall = mainGame->guiFont;
 	{
 		const irr::core::ustring t(rv.title);
 		const auto dim = big->getDimensionustring(t);
@@ -3405,9 +3405,9 @@ void DuelWorld::Draw2D() {
 		big->drawustring(t, irr::core::recti(x, y, x + dim.Width, y + dim.Height), SColor(255, 255, 230, 140));
 		if(!rv.subtitle.empty()) {
 			const irr::core::ustring s(rv.subtitle);
-			const auto sd = small->getDimensionustring(s);
+			const auto sd = fntSmall->getDimensionustring(s);
 			const irr::s32 sx = static_cast<irr::s32>(Wd / 2 - sd.Width / 2.f), sy = y + dim.Height + 8;
-			small->drawustring(s, irr::core::recti(sx, sy, sx + sd.Width, sy + sd.Height), SColor(255, 230, 230, 255));
+			fntSmall->drawustring(s, irr::core::recti(sx, sy, sx + sd.Width, sy + sd.Height), SColor(255, 230, 230, 255));
 		}
 	}
 	// cards
@@ -3454,25 +3454,25 @@ void DuelWorld::Draw2D() {
 			if(c.is_new)
 				label += L"  NEW";
 			const irr::core::ustring l(label);
-			const auto ld = small->getDimensionustring(l);
+			const auto ld = fntSmall->getDimensionustring(l);
 			const irr::s32 lx = static_cast<irr::s32>(center.X - ld.Width / 2.f), ly = static_cast<irr::s32>(center.Y + card_h / 2 + 4);
-			small->drawustring(l, irr::core::recti(lx + 1, ly + 1, lx + ld.Width + 1, ly + ld.Height + 1), SColor(255, 0, 0, 0));
-			small->drawustring(l, irr::core::recti(lx, ly, lx + ld.Width, ly + ld.Height), col_r);
+			fntSmall->drawustring(l, irr::core::recti(lx + 1, ly + 1, lx + ld.Width + 1, ly + ld.Height + 1), SColor(255, 0, 0, 0));
+			fntSmall->drawustring(l, irr::core::recti(lx, ly, lx + ld.Width, ly + ld.Height), col_r);
 		}
 	}
 	if(n == 0) {
 		const irr::core::ustring t(L"(ไม่มีการ์ดดรอป)");
-		const auto d = small->getDimensionustring(t);
-		small->drawustring(t, irr::core::recti(static_cast<irr::s32>(Wd / 2 - d.Width / 2.f), static_cast<irr::s32>(Hd * 0.45f),
+		const auto d = fntSmall->getDimensionustring(t);
+		fntSmall->drawustring(t, irr::core::recti(static_cast<irr::s32>(Wd / 2 - d.Width / 2.f), static_cast<irr::s32>(Hd * 0.45f),
 											   static_cast<irr::s32>(Wd / 2 + d.Width / 2.f), static_cast<irr::s32>(Hd * 0.45f) + d.Height),
 						   SColor(255, 180, 180, 200));
 	}
 	const std::wstring hint = reveals.size() > 1 ? epro::format(L"คลิกการ์ด = ดูรายละเอียด   •   คลิกที่ว่าง = ไปต่อ (เหลืออีก {})   •   คลิกขวา = ข้ามทั้งหมด", reveals.size() - 1)
 		: std::wstring(L"คลิกการ์ด = ดูรายละเอียด   •   คลิกที่ว่าง = ปิด");
 	const irr::core::ustring h(hint);
-	const auto hd = small->getDimensionustring(h);
+	const auto hd = fntSmall->getDimensionustring(h);
 	const irr::s32 hx = static_cast<irr::s32>(Wd / 2 - hd.Width / 2.f), hy = static_cast<irr::s32>(Hd * 0.93f);
-	small->drawustring(h, irr::core::recti(hx, hy, hx + hd.Width, hy + hd.Height),
+	fntSmall->drawustring(h, irr::core::recti(hx, hy, hx + hd.Width, hy + hd.Height),
 					   SColor(static_cast<irr::u32>(150 + 100 * std::sin(gFx.Time() * 3.f)), 255, 255, 255));
 }
 
