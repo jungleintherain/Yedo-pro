@@ -27,7 +27,6 @@ jobs:
       VCPKG_ROOT: /c/vcpkg2
       BUILD_CONFIG: release
       ARCH: x86
-      VS_GEN: vs2022
       PICS_URL: https://pics.projectignis.org:2096/pics/{}.jpg
       FIELDS_URL: https://pics.projectignis.org:2096/field/{}.png
       COVERS_URL: https://pics.projectignis.org:2096/pics/cover/{}.jpg
@@ -37,6 +36,19 @@ jobs:
         fetch-depth: 1
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
+    - name: Install v141 toolset (the prebuilt libraries were made with it)
+      shell: pwsh
+      working-directory: .
+      run: |
+        Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+        $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        $componentsToAdd= @(
+          "Microsoft.VisualStudio.Component.VC.v141.x86.x64",
+          "Microsoft.VisualStudio.Component.WinXP"
+        )
+        [string]$workloadArgs = $componentsToAdd | ForEach-Object {" --add " +  $_}
+        $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
+        $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
     - name: Set custom env vars
       run: echo "VCPKG_CACHE_ZIP_URL=$DEPENDENCIES_BASE_URL/installed_x86-windows-static.zip" >> $GITHUB_ENV
     - name: Install premake
