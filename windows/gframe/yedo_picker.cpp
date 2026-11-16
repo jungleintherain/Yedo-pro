@@ -44,7 +44,8 @@ void SendGuiEvent(irr::gui::IGUIElement* caller, irr::gui::EGUI_EVENT_TYPE type)
 }
 
 bool YEdoPicker::IsOpen() const {
-	return modal && modal->isVisible();
+	// own flag: a modal screen's isVisible() depends on Irrlicht internals and must not decide this
+	return open && modal;
 }
 
 void YEdoPicker::Build() {
@@ -107,6 +108,9 @@ void YEdoPicker::Open(const std::wstring& title, std::vector<std::wstring> list,
 	Layout();
 	Refresh();
 	modal->setVisible(true);
+	window->setVisible(true);
+	open = true;
+	taps = 0;
 	mainGame->env->getRootGUIElement()->bringToFront(modal);
 	mainGame->env->setFocus(window);
 }
@@ -125,7 +129,7 @@ void YEdoPicker::Refresh() {
 			btnItems[i]->setVisible(false);
 		}
 	}
-	stPage->setText(epro::format(L"หน้า {}/{} ({} รายการ)", page + 1, pages, shown.size()).data());
+	stPage->setText(epro::format(L"หน้า {}/{} ({} รายการ) · แตะ {}", page + 1, pages, shown.size(), taps).data());
 	btnPrev->setEnabled(page > 0);
 	btnNext->setEnabled(page + 1 < pages);
 }
@@ -134,6 +138,7 @@ void YEdoPicker::Close() {
 	if(pressed)
 		pressed->setPressed(false);
 	pressed = nullptr;
+	open = false;
 	if(modal)
 		modal->setVisible(false);
 	callback = nullptr;
@@ -185,7 +190,7 @@ irr::gui::IGUIButton* YEdoPicker::ButtonAt(const irr::core::vector2di& pos) cons
 	all[n++] = btnCancel;
 	for(int i = 0; i < n; i++) {
 		auto* b = all[i];
-		if(b && b->isTrulyVisible() && b->isEnabled() && b->getAbsolutePosition().isPointInside(pos))
+		if(b && b->isVisible() && b->isEnabled() && b->getAbsolutePosition().isPointInside(pos))
 			return b;
 	}
 	return nullptr;
@@ -212,6 +217,11 @@ bool YEdoPicker::Click(int id) {
 }
 
 bool YEdoPicker::OnEvent(const irr::SEvent& event) {
+	if(modal && event.EventType == irr::EET_GUI_EVENT && event.GUIEvent.Caller && event.GUIEvent.EventType == irr::gui::EGET_BUTTON_CLICKED &&
+	   event.GUIEvent.Caller->getParent() == window) {
+		if(Click(event.GUIEvent.Caller->getID()))
+			return true;
+	}
 	if(IsOpen()) {
 		// The popup handles its own taps (hit test on the button rectangles) instead of relying on the
 		// GUI focus/hover routing, which other screens' handlers or a stuck focus could swallow.
@@ -224,6 +234,8 @@ bool YEdoPicker::OnEvent(const irr::SEvent& event) {
 			}
 			switch(event.MouseInput.Event) {
 				case irr::EMIE_LMOUSE_PRESSED_DOWN:
+					taps++;
+					Refresh();
 					if(pressed)
 						pressed->setPressed(false);
 					pressed = ButtonAt(pos);

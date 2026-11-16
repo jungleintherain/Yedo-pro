@@ -59,6 +59,8 @@ private:
 	int selected = -1;
 	int page = 0;
 	irr::gui::IGUIButton* pressed = nullptr;
+	bool open = false;
+	int taps = 0;  // shown in the page label: tells whether taps reach the popup
 	std::function<void(int)> callback;
 };
 
