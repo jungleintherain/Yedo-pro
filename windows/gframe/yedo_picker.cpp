@@ -12,6 +12,8 @@
 #include "game.h"
 #include "fmt.h"
 #include "world.h"
+#include "bufferio.h"
+#include "porting.h"
 
 namespace ygo {
 
@@ -144,6 +146,35 @@ void YEdoPicker::Close() {
 	callback = nullptr;
 }
 
+bool YEdoPicker::Ask(const std::wstring& title, const std::vector<std::wstring>& list, int sel, std::function<void(int)> on_pick) {
+#if EDOPRO_ANDROID
+	// Android's own list dialog (same one stock EDOPro uses for combo boxes): scrollable, touch-proof
+	(void)title;
+	std::vector<std::string> params;
+	params.reserve(list.size());
+	for(const auto& it : list)
+		params.push_back(BufferIO::EncodeUTF8(it));
+	native_cb = std::move(on_pick);
+	native_count = static_cast<int>(list.size());
+	porting::showComboBox(params, sel);
+	swallow_up = true;
+	return true;
+#else
+	Open(title, list, sel, std::move(on_pick));
+	return true;
+#endif
+}
+
+bool YEdoPicker::NativeResult(int index) {
+	if(!native_cb)
+		return false;
+	auto cb = std::move(native_cb);
+	native_cb = nullptr;
+	if(index >= 0 && index < native_count)
+		cb(index);
+	return true;
+}
+
 bool YEdoPicker::TryOpenFor(irr::gui::IGUIElement* hovered) {
 	if(!hovered || !hovered->isEnabled() || !hovered->isTrulyVisible())
 		return false;
@@ -155,7 +186,7 @@ bool YEdoPicker::TryOpenFor(irr::gui::IGUIElement* hovered) {
 		for(irr::u32 i = 0; i < cb->getItemCount(); i++)
 			list.emplace_back(cb->getItem(i));
 		std::wstring title = L"เลือก";
-		Open(title, std::move(list), cb->getSelected(), [cb](int idx) {
+		return Ask(title, list, cb->getSelected(), [cb](int idx) {
 			cb->setSelected(idx);
 			mainGame->env->setFocus(cb);
 			SendGuiEvent(cb, irr::gui::EGET_COMBO_BOX_CHANGED);
@@ -172,7 +203,7 @@ bool YEdoPicker::TryOpenFor(irr::gui::IGUIElement* hovered) {
 		std::vector<std::wstring> list;
 		for(irr::u32 i = 0; i < lb->getItemCount(); i++)
 			list.emplace_back(lb->getListItem(i));
-		Open(L"เลือกสกิล", std::move(list), lb->getSelected(), [lb](int idx) {
+		return Ask(L"เลือกสกิล", list, lb->getSelected(), [lb](int idx) {
 			lb->setSelected(idx);
 			SendGuiEvent(lb, irr::gui::EGET_LISTBOX_CHANGED);
 		});
@@ -286,6 +317,13 @@ bool YEdoPicker::OnEvent(const irr::SEvent& event) {
 		return false;
 	}
 #if EDOPRO_ANDROID
+	if(swallow_up && event.EventType == irr::EET_MOUSE_INPUT_EVENT) {
+		if(event.MouseInput.Event == irr::EMIE_LMOUSE_LEFT_UP)
+			swallow_up = false;
+		if(event.MouseInput.Event != irr::EMIE_LMOUSE_PRESSED_DOWN)
+			return true;
+		swallow_up = false;
+	}
 	if(event.EventType == irr::EET_MOUSE_INPUT_EVENT && event.MouseInput.Event == irr::EMIE_LMOUSE_PRESSED_DOWN) {
 		auto* hovered = mainGame->env->getRootGUIElement()->getElementFromPoint({ event.MouseInput.X, event.MouseInput.Y });
 		return TryOpenFor(hovered);

@@ -3,6 +3,7 @@
 #endif
 
 #include "porting_android.h"
+#include "../yedo_picker.h"
 
 #include <android_native_app_glue.h>
 #include <jni.h>
@@ -115,6 +116,9 @@ extern "C" {
 		if(porting::app_global->userData) {
 			queued_messages_mutex->lock();
 			events->emplace_back([index]() {
+				// YEdo: a choice asked by the YEdo picker (deck / skill lists) goes straight to it
+				if(ygo::gPicker.NativeResult(index))
+					return;
 				auto device = static_cast<irr::IrrlichtDevice*>(porting::app_global->userData);
 				auto irrenv = device->getGUIEnvironment();
 				auto element = irrenv->getFocus();

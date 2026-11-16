@@ -38,6 +38,8 @@ public:
 	bool OnEvent(const irr::SEvent& event);
 	void Open(const std::wstring& title, std::vector<std::wstring> items, int selected, std::function<void(int)> on_pick);
 	bool IsOpen() const;
+	// Android: result of the native list dialog (porting::showComboBox). true if it was ours.
+	bool NativeResult(int index);
 private:
 	void Build();
 	void Layout();
@@ -60,6 +62,10 @@ private:
 	int page = 0;
 	irr::gui::IGUIButton* pressed = nullptr;
 	bool open = false;
+	std::function<void(int)> native_cb;  // pending native dialog choice
+	int native_count = 0;
+	bool swallow_up = false;             // eat the release of the tap that opened the native dialog
+	bool Ask(const std::wstring& title, const std::vector<std::wstring>& list, int sel, std::function<void(int)> on_pick);
 	int taps = 0;  // shown in the page label: tells whether taps reach the popup
 	std::function<void(int)> callback;
 };
