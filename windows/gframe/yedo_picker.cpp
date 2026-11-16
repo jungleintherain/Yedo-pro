@@ -131,6 +131,9 @@ void YEdoPicker::Refresh() {
 }
 
 void YEdoPicker::Close() {
+	if(pressed)
+		pressed->setPressed(false);
+	pressed = nullptr;
 	if(modal)
 		modal->setVisible(false);
 	callback = nullptr;
@@ -173,28 +176,89 @@ bool YEdoPicker::TryOpenFor(irr::gui::IGUIElement* hovered) {
 	return false;
 }
 
+irr::gui::IGUIButton* YEdoPicker::ButtonAt(const irr::core::vector2di& pos) const {
+	irr::gui::IGUIButton* all[PER_PAGE + 3];
+	int n = 0;
+	for(auto* b : btnItems) all[n++] = b;
+	all[n++] = btnPrev;
+	all[n++] = btnNext;
+	all[n++] = btnCancel;
+	for(int i = 0; i < n; i++) {
+		auto* b = all[i];
+		if(b && b->isTrulyVisible() && b->isEnabled() && b->getAbsolutePosition().isPointInside(pos))
+			return b;
+	}
+	return nullptr;
+}
+
+bool YEdoPicker::Click(int id) {
+	if(id >= BUTTON_YEDO_PICK_0 && id < BUTTON_YEDO_PICK_0 + PER_PAGE) {
+		const size_t k = static_cast<size_t>(page * PER_PAGE + (id - BUTTON_YEDO_PICK_0));
+		if(k < shown.size()) {
+			auto cb = std::move(callback);
+			const int idx = shown[k];
+			Close();
+			if(cb)
+				cb(idx);
+		}
+		return true;
+	}
+	switch(id) {
+		case BUTTON_YEDO_PICK_PREV: page--; Refresh(); return true;
+		case BUTTON_YEDO_PICK_NEXT: page++; Refresh(); return true;
+		case BUTTON_YEDO_PICK_CANCEL: Close(); return true;
+		default: return false;
+	}
+}
+
 bool YEdoPicker::OnEvent(const irr::SEvent& event) {
 	if(IsOpen()) {
-		if(event.EventType == irr::EET_GUI_EVENT) {
-			const auto id = event.GUIEvent.Caller->getID();
-			if(event.GUIEvent.EventType == irr::gui::EGET_BUTTON_CLICKED) {
-				if(id >= BUTTON_YEDO_PICK_0 && id < BUTTON_YEDO_PICK_0 + PER_PAGE) {
-					const size_t k = static_cast<size_t>(page * PER_PAGE + (id - BUTTON_YEDO_PICK_0));
-					if(k < shown.size()) {
-						auto cb = std::move(callback);
-						const int idx = shown[k];
-						Close();
-						if(cb)
-							cb(idx);
-					}
-					return true;
-				}
-				switch(id) {
-					case BUTTON_YEDO_PICK_PREV: page--; Refresh(); return true;
-					case BUTTON_YEDO_PICK_NEXT: page++; Refresh(); return true;
-					case BUTTON_YEDO_PICK_CANCEL: Close(); return true;
-				}
+		// The popup handles its own taps (hit test on the button rectangles) instead of relying on the
+		// GUI focus/hover routing, which other screens' handlers or a stuck focus could swallow.
+		if(event.EventType == irr::EET_MOUSE_INPUT_EVENT) {
+			const irr::core::vector2di pos(event.MouseInput.X, event.MouseInput.Y);
+			if(ebFilter && ebFilter->getAbsolutePosition().isPointInside(pos)) {
+				if(event.MouseInput.Event == irr::EMIE_LMOUSE_PRESSED_DOWN)
+					mainGame->env->setFocus(ebFilter);
+				return false; // normal path (Android text input dialog)
 			}
+			switch(event.MouseInput.Event) {
+				case irr::EMIE_LMOUSE_PRESSED_DOWN:
+					if(pressed)
+						pressed->setPressed(false);
+					pressed = ButtonAt(pos);
+					if(pressed)
+						pressed->setPressed(true);
+					break;
+				case irr::EMIE_LMOUSE_LEFT_UP: {
+					auto* hit = ButtonAt(pos);
+					auto* down = pressed;
+					pressed = nullptr;
+					if(down)
+						down->setPressed(false);
+					if(hit && hit == down)  // the release of the tap that opened the popup must not pick anything
+						Click(hit->getID());
+					else
+						Refresh();
+					break;
+				}
+				case irr::EMIE_MOUSE_WHEEL:
+					page += event.MouseInput.Wheel < 0 ? 1 : -1;
+					Refresh();
+					break;
+				default: break;
+			}
+			return true;
+		}
+		if(event.EventType == irr::EET_KEY_INPUT_EVENT && event.KeyInput.Key == irr::KEY_ESCAPE) {
+			if(!event.KeyInput.PressedDown)
+				Close();
+			return true;
+		}
+		if(event.EventType == irr::EET_GUI_EVENT && event.GUIEvent.Caller) {
+			const auto id = event.GUIEvent.Caller->getID();
+			if(event.GUIEvent.EventType == irr::gui::EGET_BUTTON_CLICKED && Click(id))
+				return true;
 			if(id == EDITBOX_YEDO_PICK_FILTER &&
 			   (event.GUIEvent.EventType == irr::gui::EGET_EDITBOX_CHANGED || event.GUIEvent.EventType == irr::gui::EGET_EDITBOX_ENTER)) {
 				const auto f = Lower(ebFilter->getText());

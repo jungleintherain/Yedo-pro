@@ -5,6 +5,7 @@
 // On Android every combo box (and the Duel World skill list) opens this popup instead of a tiny dropdown.
 
 #include <IEventReceiver.h>
+#include <vector2d.h>
 #include <cstring>
 #include <functional>
 #include <string>
@@ -43,6 +44,8 @@ private:
 	void Refresh();
 	void Close();
 	bool TryOpenFor(irr::gui::IGUIElement* hovered);
+	irr::gui::IGUIButton* ButtonAt(const irr::core::vector2di& pos) const;
+	bool Click(int id);
 	irr::gui::IGUIElement* modal = nullptr;
 	irr::gui::IGUIWindow* window = nullptr;
 	irr::gui::IGUIEditBox* ebFilter = nullptr;
@@ -55,6 +58,7 @@ private:
 	std::vector<int> shown;  // indexes into items after the filter
 	int selected = -1;
 	int page = 0;
+	irr::gui::IGUIButton* pressed = nullptr;
 	std::function<void(int)> callback;
 };
 
